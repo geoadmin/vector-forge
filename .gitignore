@@ -1,0 +1,7 @@
+*.pyc
+*.ini
+*.swp
+development.ini
+production.ini
+vector_forge.egg-info
+venv
