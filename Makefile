@@ -1,4 +1,5 @@
 VENV = venv
+PYTHON_CMD = $(VENV)/bin/python
 USER = $(shell whoami)
 
 .PHONY: help
@@ -12,10 +13,12 @@ help:
 	@echo "- lint               Linter for python code"
 	@echo "- all                All of the above"
 	@echo "- dev                Enter dev shell"
+	@echo "- clean              Clean all generated files and folders"
 	@echo
 	@echo "Variables:"
 	@echo
 	@echo "- USER (current value: $(USER))"
+	@echo "- PYTHON_CMD (current value: $(PYTHON_CMD))"
 
 	@echo
 
@@ -25,7 +28,7 @@ all: install template lint
 .PHONY: install
 install:
 	virtualenv $(VENV)
-	$(VENV)/bin/python setup.py develop
+	$(PYTHON_CMD) setup.py develop
 
 .PHONY: template	
 template:
@@ -42,3 +45,9 @@ lint:
 .PHONY: dev
 dev:
 	$(VENV)/bin/pserve development.ini
+
+.PHONY: clean
+clean:
+	rm -rf venv
+	rm -rf vector_forge.egg-info
+	rm -f *.ini
