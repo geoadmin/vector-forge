@@ -15,6 +15,7 @@ requires = [
     'pyramid',
     'pyramid_mako',
     'pyramid_debugtoolbar',
+    'regex',
     'SQLAlchemy',
     'waitress',
     ]
