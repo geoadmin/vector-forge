@@ -44,7 +44,8 @@ $(document).ready(function() {
     target: 'map',
     view: new ol.View({
       center: [600000, 200000],
-      zoom: 15
+      resolution: 650,
+      projection: 'EPSG:21781'
     })
   });
 });
