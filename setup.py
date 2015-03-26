@@ -10,12 +10,14 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'geoalchemy2',
+    'geojson',
     'psycopg2',
     'pyflakes',
     'pyramid',
     'pyramid_mako',
     'pyramid_debugtoolbar',
     'regex',
+    'shapely',
     'SQLAlchemy',
     'waitress',
     ]
