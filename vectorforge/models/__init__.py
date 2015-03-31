@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import create_engine
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
+from geoalchemy2.elements import WKBElement
+from shapely.geometry import box
 
 # Defined here to be called from outside the web app
 host = 'localhost'
@@ -45,3 +48,39 @@ def init():
         engine = create_engine('postgresql://%s:%s/%s' %(host, port, dbname))
         engines.add(engine, dbname)
         bases.add(engine, dbname)
+
+class Vector(object):
+
+    @classmethod
+    def geometryColumn(cls):
+        return cls.__mapper__.columns['the_geom']
+
+    """
+    Returns a sqlalchemy.sql.functions.Function clipping function
+    :param bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
+    """
+    @classmethod
+    def bboxClippedGeom(cls, bbox, srid=21781):
+        bboxGeom = shapelyBBox(bbox)
+        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid)
+        geomColumn = cls.geometryColumn()
+        return func.ST_Intersection(geomColumn, wkbGeometry)
+
+    """
+    Returns a slqalchemy.sql.functions.Function interesects function
+    Use it as a filter to determine if a geometry should be returned (True or False)
+    :params bbox: A list of 4 coordinates [minX, minX, maxX, maxY]
+    """
+    @classmethod
+    def bboxIntersects(cls, bbox, srid=21781):
+        bboxGeom = shapelyBBox(bbox)
+        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid)
+        geomColumn = cls.geometryColumn()
+        return func.ST_Intersects(geomColumn, wkbGeometry)
+
+"""
+Returns a shapely.geometry.polygon.Polygon
+:param bbox: A list of 4 cooridinates [minX, minY, maxX, maxY]
+"""
+def shapelyBBox(bbox):
+    return box(*bbox)
