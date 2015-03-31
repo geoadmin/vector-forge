@@ -44,7 +44,7 @@ lint:
 
 .PHONY: dev
 dev:
-	$(VENV)/bin/pserve development.ini
+	$(VENV)/bin/pserve development.ini --reload
 
 .PHONY: clean
 clean:
