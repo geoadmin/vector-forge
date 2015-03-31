@@ -4,7 +4,7 @@ from sqlalchemy import Column, Text, Integer
 from sqlalchemy.types import Numeric
 from geoalchemy2.types import Geometry
 
-from vectorforge.models import init, bases, Vector
+from vectorforge.models import init, bases, register, Vector
 
 
 if bases.get('stopo') is None:
@@ -24,6 +24,8 @@ class Vec200Namedlocation(Base, Vector):
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
 
+register('ch.swisstopo.vec200-names-namedlocation', Vec200Namedlocation)
+
 # Lines
 class Vec25Strassennetz(Base, Vector):
     __tablename__ = 'v25_str_25_l_tooltip'
@@ -33,6 +35,8 @@ class Vec25Strassennetz(Base, Vector):
     length = Column('length', Numeric)
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
+
+register('ch.swisstopo.vec25-strassennetz', Vec25Strassennetz)
 
 # Polygons
 class SwissboundariesGemeinde(Base, Vector):
@@ -46,3 +50,5 @@ class SwissboundariesGemeinde(Base, Vector):
     kanton = Column('kanton', Text)
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
+
+register('ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill', SwissboundariesGemeinde)
