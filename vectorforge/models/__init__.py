@@ -42,6 +42,10 @@ class Bases(object):
 
 engines = Engines()
 bases = Bases()
+layers = {}
+
+def register(layerID, model):
+    layers[layerID] = model
 
 def init():
     for dbname in dbs:
@@ -77,6 +81,12 @@ class Vector(object):
         wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid)
         geomColumn = cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
+
+    def getProperties(self):
+        """ 
+        Expose all that is not an id and a geom
+        """
+        raise NotImplemented
 
 """
 Returns a shapely.geometry.polygon.Polygon
