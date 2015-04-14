@@ -12,5 +12,7 @@
     <h2>Demo page for vector tiles</h2>
     <h3>WMTS demo</h3>
     <a href="../../static/examples/basicmap">Pure Ol3 WMTS example</a>
+    <h3>Vector tiles demo</h3>
+    <a href="../../static/examples/geojsonpoints">Pre-generated regular tiles with geojson points</a>
   </body>
 </html>

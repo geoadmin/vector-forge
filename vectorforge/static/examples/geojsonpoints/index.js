@@ -172,7 +172,7 @@ $(document).ready(function() {
     ],
     target: 'map',
     view: new ol.View({
-      center: [600000, 200000],
+      center: [650000, 200000],
       resolution: 250,
       extent: extent,
       projection: 'EPSG:21781'
