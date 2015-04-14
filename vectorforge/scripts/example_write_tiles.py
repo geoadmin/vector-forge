@@ -51,7 +51,7 @@ try:
                 query = query.filter(model.bboxIntersects(bbox))
 
                 features = [toGeoJSONFeature(res.id, to_shape(res.clippedGeom)) for res in query]
-                featureCollection = geojson.FeatureCollection(features, crs='EPSG:21781')
+                featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
                 path = preparePath(zoomLevel, tileCol, tileRow)
                 setFileContent(b, path, featureCollection)
                 tileRow += 1
