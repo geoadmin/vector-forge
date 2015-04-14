@@ -12,6 +12,7 @@ requires = [
     'boto',
     'geoalchemy2',
     'geojson',
+    'httplib2',
     'psycopg2',
     'pyflakes',
     'pyramid',
