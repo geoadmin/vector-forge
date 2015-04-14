@@ -27,7 +27,7 @@ all: install template lint
 
 .PHONY: install
 install:
-	virtualenv $(VENV)
+	virtualenv $(VENV) --distribute
 	$(PYTHON_CMD) setup.py develop
 
 .PHONY: template	

@@ -17,3 +17,7 @@ Build:
 Serve your web app:
 
     $ make dev
+
+Activate virtualenv:
+
+    $ source venv/bin/activate
