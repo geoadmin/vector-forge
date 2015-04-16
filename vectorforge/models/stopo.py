@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Column, Text, Integer
+from sqlalchemy import Column, Text, Integer, Float
 from sqlalchemy.types import Numeric
 from geoalchemy2.types import Geometry
 
@@ -33,6 +33,8 @@ class Vec25Strassennetz(Base, Vector):
     __bodId__ = 'ch.swisstopo.vec25-strassennetz'
     id = Column('objectid', Integer, primary_key=True)
     length = Column('length', Numeric)
+    yearofchan = Column('yearofchan', Float)
+    objectval = Column('objectval', Text)
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
 
