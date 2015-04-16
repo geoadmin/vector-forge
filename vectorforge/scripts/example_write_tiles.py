@@ -11,8 +11,8 @@ from vectorforge.lib.grid import Grid, RESOLUTIONS
 from vectorforge.models.stopo import Vec200Namedlocation
 
 
-def preparePath(zoomLevel, tileCol, tileRow):
-    return '%s/%s/%s.geojson' %(zoomLevel, tileCol, tileRow)
+def preparePath(layerId, zoomLevel, tileCol, tileRow):
+    return '%s/%s/%s/%s.geojson' %(layerId, zoomLevel, tileCol, tileRow)
 
 
 def setFileContent(b, path, featureCollection, contentType='application/json'):
@@ -30,6 +30,7 @@ t0 = time.time()
 conn = s3Connect()
 b = getBucket(conn)
 model = Vec200Namedlocation
+layerId = model.__bodId__
 DBSession = scoped_session(sessionmaker())
 
 
@@ -52,7 +53,7 @@ try:
 
                 features = [toGeoJSONFeature(res.id, to_shape(res.clippedGeom)) for res in query]
                 featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
-                path = preparePath(zoomLevel, tileCol, tileRow)
+                path = preparePath(layerId, zoomLevel, tileCol, tileRow)
                 setFileContent(b, path, featureCollection)
                 tileRow += 1
             minY = grid.minY
