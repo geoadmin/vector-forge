@@ -56,6 +56,10 @@ def init():
 class Vector(object):
 
     @classmethod
+    def primaryKeyColumn(cls):
+        return cls.__mapper__.primary_key[0]
+
+    @classmethod
     def geometryColumn(cls):
         return cls.__mapper__.columns['the_geom']
 
@@ -84,9 +88,19 @@ class Vector(object):
 
     def getProperties(self):
         """ 
-        Expose all that is not an id and a geom
+        Expose all that is not an id and a geometry
         """
-        raise NotImplemented
+        properties = {}
+        for column in self.__table__.columns:
+          isPrimaryKey = bool(self.primaryKeyColumn() == column)
+          isGeometry = bool(self.geometryColumn() == column)
+          if not isPrimaryKey and not isGeometry:
+              # As mapped on the model
+              propertyName = self.__mapper__.get_property_by_column(column).key
+              propertyValue = getattr(self, column.name)
+              properties[propertyName] = propertyValue
+        return properties
+
 
 """
 Returns a shapely.geometry.polygon.Polygon

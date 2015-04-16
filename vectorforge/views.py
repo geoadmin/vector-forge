@@ -47,5 +47,6 @@ def geojsonView(request):
     DBSession = scoped_session(sessionmaker())
     res = DBSession.query(model).first()
     shapelyGeom = to_shape(res.the_geom)
+    properties = res.getProperties()
     DBSession.close()
-    return  geojson.Feature(id=res.id, geometry=shapelyGeom, properties={})
+    return  geojson.Feature(id=res.id, geometry=shapelyGeom, properties=properties)
