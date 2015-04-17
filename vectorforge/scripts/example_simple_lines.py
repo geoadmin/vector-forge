@@ -63,7 +63,6 @@ try:
                     coordinates = simplify.simplifyLineString(float(resolution))
                     # Convert back to tuples
                     geoJSONFeature['geometry']['coordinates'] = tuple(itertools.imap(tuple, coordinates))
-                    time.sleep(1)
                     features.append(geoJSONFeature) 
                 featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
 
