@@ -21,6 +21,7 @@ requires = [
     'regex',
     'shapely',
     'SQLAlchemy',
+    'visvalingam',
     'waitress',
     ]
 
