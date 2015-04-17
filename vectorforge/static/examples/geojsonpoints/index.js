@@ -23,12 +23,16 @@ $(document).ready(function() {
         .replace('{Format}', format);
   };
 
+  var createWMTSGrid = function(resolutions, origin) {
+    return new ol.tilegrid.WMTS({
+      matrixIds: $.map(resolutions, function(r, i) { return i + ''; }),
+      origin: origin,
+      resolutions: resolutions
+    });
+  }
+
   // WMTS layer
-  var tileGridWMTS = new ol.tilegrid.WMTS({
-    matrixIds: $.map(defaultResolutions, function(r, i) { return i + ''; }),
-    origin: origin,
-    resolutions: defaultResolutions
-  });
+  var tileGridWMTS = createWMTSGrid(defaultResolutions, origin);
   var olSourceWMTS = new ol.source.WMTS({
     dimensions: {
       'Time': '20151231'
@@ -45,12 +49,27 @@ $(document).ready(function() {
     extent: olSourceWMTS.getProjection().getExtent()
   });
 
-  // VECTOR layer
-  var tileGrid = new ol.tilegrid.WMTS({
-    matrixIds: $.map(defaultResolutions, function(r, i) { return i + ''; }),
-    origin: origin,
-    resolutions: defaultResolutions
+  // WMTS points layer for comparison
+  var tileGridComparison = createWMTSGrid(defaultResolutions, origin);
+  var olSourceComparison = new ol.source.WMTS({
+    dimensions: {
+      'Time': '20140101'
+    },
+    projection: 'EPSG:21781',
+    requestEncoding: 'REST',
+    tileGrid: tileGridComparison,
+    url: getWmtsGetTileUrl('ch.swisstopo.vec200-names-namedlocation', 'png'),
+    crossOrigin: 'anonymous'
   });
+  olSourceComparison.getProjection().setExtent(extent);
+  var olComparisonLayer = new ol.layer.Tile({
+    source: olSourceComparison,
+    extent: olSourceComparison.getProjection().getExtent()
+  });
+
+
+  // VECTOR layer
+  var tileGrid = createWMTSGrid(defaultResolutions, origin);
 
   // https://github.com/openlayers/ol3/blob/master/src/ol/source/wmtssource.js
   var createFromWMTSTemplate = function(template) {
@@ -168,7 +187,7 @@ $(document).ready(function() {
       }
     }),
     layers: [
-      olWMTSLayer, olVectorLayer
+      olWMTSLayer, olComparisonLayer, olVectorLayer
     ],
     target: 'map',
     view: new ol.View({
