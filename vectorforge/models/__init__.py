@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import decimal
+import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -86,6 +88,16 @@ class Vector(object):
         geomColumn = cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
 
+    """
+    Returns a sqlalchemy.sql.functions.Function line merge function
+    It creates a (set of) LineString(s) formed by sewing together a MULTILINESTRING.
+    If can't be merged - original MULTILINESTRING is returned
+    """
+    @classmethod
+    def lineMerge(cls):
+        geomColumn = cls.geometryColumn()
+        return func.ST_AsEWKB(func.ST_LineMerge(geomColumn))
+
     def getProperties(self):
         """ 
         Expose all that is not an id and a geometry
@@ -98,7 +110,7 @@ class Vector(object):
               # As mapped on the model
               propertyName = self.__mapper__.get_property_by_column(column).key
               propertyValue = getattr(self, column.name)
-              properties[propertyName] = propertyValue
+              properties[propertyName] = formatPropertyValue(propertyValue)
         return properties
 
 
@@ -108,3 +120,15 @@ Returns a shapely.geometry.polygon.Polygon
 """
 def shapelyBBox(bbox):
     return box(*bbox)
+
+
+"""
+Returns a primitive type like value (int, str, bool, ...)
+:param prop: A feature property
+"""
+def formatPropertyValue(prop):
+    if isinstance(prop, decimal.Decimal):
+        return prop.__float__()
+    elif isinstance(prop, datetime.datetime):
+        return prop.strftime("%d.%m.%Y")
+    return prop

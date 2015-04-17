@@ -5,26 +5,11 @@ import datetime
 import geojson
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
-from boto.s3.key import Key
-from vectorforge.lib.boto_s3 import s3Connect, getBucket
+from vectorforge.lib.boto_s3 import s3Connect, getBucket, setFileContent, preparePath
 from vectorforge.lib.grid import Grid, RESOLUTIONS
 from vectorforge.models.stopo import Vec200Namedlocation
 
 
-def preparePath(layerId, zoomLevel, tileCol, tileRow):
-    return '%s/%s/%s/%s.geojson' %(layerId, zoomLevel, tileCol, tileRow)
-
-
-def setFileContent(b, path, featureCollection, contentType='application/json'):
-    k = Key(b)
-    k.key = path
-    return k.set_contents_from_string(geojson.dumps(featureCollection), headers={'Content-Type': contentType})
-
-
-def toGeoJSONFeature(ID, shapelyGeom):
-    return geojson.Feature(ID, geometry=shapelyGeom, properties={})
-
-    
 t0 = time.time()
 
 conn = s3Connect()
@@ -35,7 +20,7 @@ DBSession = scoped_session(sessionmaker())
 
 
 try:
-    for zoomLevel in range(0, len(RESOLUTIONS)):
+    for zoomLevel in range(0, len(RESOLUTIONS[0:24])):
         t1 = time.time()
 
         grid = Grid(zoomLevel)
@@ -47,11 +32,13 @@ try:
         while grid.maxX >= maxX:
             while grid.minY <= minY:
                 bbox = [minX, minY, maxX, maxY] = grid.tileBounds(tileCol, tileRow)
-                clippedGeometry = model.bboxClippedGeom(bbox).label('clippedGeom')
-                query = DBSession.query(model.id, clippedGeometry)
+                clippedGeometry = model.bboxClippedGeom(bbox)
+                query = DBSession.query(model, clippedGeometry)
                 query = query.filter(model.bboxIntersects(bbox))
 
-                features = [toGeoJSONFeature(res.id, to_shape(res.clippedGeom)) for res in query]
+                features = [
+                    geojson.Feature(res[0].id, geometry=to_shape(res[1]), properties=res[0].getProperties()) for res in query
+                ]
                 featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
                 path = preparePath(layerId, zoomLevel, tileCol, tileRow)
                 setFileContent(b, path, featureCollection)
@@ -71,5 +58,3 @@ finally:
     tf = t3 - t0
     print 'Tile generation process ended/stopped.'
     print 'It took %s' %str(datetime.timedelta(seconds=tf))
-
-
