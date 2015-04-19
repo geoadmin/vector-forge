@@ -29,4 +29,8 @@ def preparePath(layerId, zoomLevel, tileCol, tileRow, tileFormat='geojson'):
 def setFileContent(b, path, featureCollection, contentType='application/json'):
     k = Key(b)
     k.key = path
-    return k.set_contents_from_string(geojson.dumps(featureCollection), headers={'Content-Type': contentType})
+    if isinstance(featureCollection, dict):
+        featureCollection = geojson.dumps(featureCollection)
+    elif isinstance(featureCollection, file):
+        featureCollection = featureCollection.read()
+    return k.set_contents_from_string(featureCollection, headers={'Content-Type': contentType})

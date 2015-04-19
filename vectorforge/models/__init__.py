@@ -131,4 +131,6 @@ def formatPropertyValue(prop):
         return prop.__float__()
     elif isinstance(prop, datetime.datetime):
         return prop.strftime("%d.%m.%Y")
+    elif isinstance(prop, str) or isinstance(prop, unicode):
+        return prop.rstrip()
     return prop
