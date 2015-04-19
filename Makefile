@@ -29,6 +29,7 @@ all: install template lint
 install:
 	virtualenv $(VENV) --distribute
 	$(PYTHON_CMD) setup.py develop
+	npm install
 
 .PHONY: template	
 template:
@@ -51,3 +52,4 @@ clean:
 	rm -rf venv
 	rm -rf vector_forge.egg-info
 	rm -f *.ini
+	rm -rf node_modules

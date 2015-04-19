@@ -13,6 +13,8 @@
     <h3>WMTS demo</h3>
     <a href="../../static/examples/basicmap">Pure Ol3 WMTS example</a>
     <h3>Vector tiles demo</h3>
-    <a href="../../static/examples/geojsonpoints">Pre-generated regular tiles with geojson points</a>
+    <a href="../../static/examples/geojsonpoints">Pre-generated regular tiles of geojson points</a>
+    <br>
+    <a href="../../static/examples/topojsonlines">Pre-genertated regular tiles of simplified and quantized topojson lines</a>
   </body>
 </html>

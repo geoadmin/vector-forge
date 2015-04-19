@@ -5,3 +5,6 @@ development.ini
 production.ini
 vector_forge.egg-info
 venv
+node_modules
+temp.json
+out.json
