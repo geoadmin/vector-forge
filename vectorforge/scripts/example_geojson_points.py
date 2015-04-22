@@ -3,6 +3,8 @@
 import time
 import datetime
 import geojson
+import sys
+import traceback
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, setFileContent, preparePath
@@ -50,8 +52,13 @@ try:
         ti = t2 - t1
         print 'All tiles have been generated for zoom level: %s' %zoomLevel
         print 'It took %s' %str(datetime.timedelta(seconds=ti))
-except Exception as e:
-    print e
+except Exception:
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    print "*** Traceback:"
+    traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+    print "*** Exception:"
+    traceback.print_exception(exc_type, exc_value, exc_traceback,
+                              limit=2, file=sys.stdout)
 finally:
     DBSession.close()
     t3 = time.time()

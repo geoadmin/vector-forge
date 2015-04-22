@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import time
 import datetime
 import geojson
 import subprocess
+import traceback
 from sqlalchemy import or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKBElement
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, setFileContent, preparePath
 from vectorforge.lib.grid import Grid, RESOLUTIONS
+from vectorforge.lib.encoders import gzippedFileContent
 from vectorforge.models.stopo import Vec25Strassennetz
 
 
@@ -17,25 +20,25 @@ from vectorforge.models.stopo import Vec25Strassennetz
 This script is simplifying lines on the fly using the Visvalingam’s algorithm
 which is not currently available in postgis.
 Explanations can be found at http://bost.ocks.org/mike/simplify/
-We also use quantization and thematic filtering according to the zoom level.
+We also use quantization which is more or less like rasterinzing the input
+and thematic filtering to only keep the main road segments at low resolutions.
 """
 
-def writeGeojsonFile(data):
-    with open('temp.json', 'w') as outfile:
+def writeGeojsonFile(data, fileName):
+    with open(fileName, 'w') as outfile:
         outfile.write(geojson.dumps(data))
 
-def toTopojson(threshold, quantization, prop):
+def toTopojson(threshold, quantization, prop, inputFileName, outputFileName):
     """ Try quantization """
-    fileName = 'output.json'
     subprocess.call([
-        'node_modules/.bin/topojson', '-o', fileName,
-        '--cartesian', '-s', str(threshold), '-q', str(quantization), '-p', prop, 'temp.json'
+        'node_modules/.bin/topojson', '-o', outputFileName,
+        '--cartesian', '-s', str(threshold), '-q', str(quantization), '-p', prop, inputFileName
     ])
-    return fileName
+    return outputFileName
 
-def clean():
-    subprocess.call(['rm', '-f', 'temp.json'])
-    subprocess.call(['rm', '-f', 'output.json'])
+def clean(inputFileName, outputFileName):
+    subprocess.call(['rm', '-f', inputFileName])
+    subprocess.call(['rm', '-f', outputFileName])
 
 def applyFilters(query, propertyColumn, propertyValues):
     clauses = []
@@ -74,7 +77,6 @@ zoomFilters = {
 }
 
 t0 = time.time()
-
 conn = s3Connect()
 b = getBucket(conn)
 model = Vec25Strassennetz
@@ -93,6 +95,8 @@ try:
         tileRow = 0
         resolution = RESOLUTIONS[zoomLevel]
         propertyValues = zoomFilters[str(zoomLevel)]
+        inputFileName = u'temp.json'
+        outputFileName = u'output.json'
 
         while grid.maxX >= maxX:
             while grid.minY <= minY:
@@ -112,13 +116,14 @@ try:
                     geoJSONFeature = geojson.Feature(ID, geometry=shapelyGeometry, properties=properties)
                     features.append(geoJSONFeature) 
                 featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
-                writeGeojsonFile(featureCollection)
-                fileName = toTopojson(resolution*2, grid.tileSizeInPixel*grid.tileSizeInPixel, 'objectval')
+                writeGeojsonFile(featureCollection, inputFileName)
+                fileName = toTopojson(resolution*2, grid.tileSizeInPixel, 'objectval', inputFileName, outputFileName)
 
-                path = preparePath(layerId, zoomLevel, tileCol, tileRow, 'topojson')
-                with open(fileName) as topjsonArcs:
-                    setFileContent(b, path, topjsonArcs)
-                clean()
+                path = preparePath(layerId, zoomLevel, tileCol, tileRow, 'json')
+                print path
+                compressedContent = gzippedFileContent(fileName)
+                setFileContent(b, path, compressedContent)
+                clean(inputFileName, outputFileName)
                 tileRow += 1
             minY = grid.minY
             tileCol += 1
@@ -127,11 +132,16 @@ try:
         ti = t2 - t1
         print 'All tiles have been generated for zoom level: %s' %zoomLevel
         print 'It took %s' %str(datetime.timedelta(seconds=ti))
-except Exception as e:
-    print e
+except Exception:
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    print "*** Traceback:"
+    traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+    print "*** Exception:"
+    traceback.print_exception(exc_type, exc_value, exc_traceback,
+                              limit=2, file=sys.stdout)
 finally:
     try:
-        clean()
+        clean(inputFileName, outputFileName)
     except:
         pass
     DBSession.close()
