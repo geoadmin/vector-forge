@@ -2,6 +2,7 @@
 
 import boto
 import geojson
+from io import BytesIO
 from boto.s3.key import Key
 
 
@@ -27,10 +28,12 @@ def preparePath(layerId, zoomLevel, tileCol, tileRow, tileFormat='geojson'):
 
 
 def setFileContent(b, path, featureCollection, contentType='application/json'):
+    headers = {'Content-Type': contentType}
     k = Key(b)
     k.key = path
     if isinstance(featureCollection, dict):
         featureCollection = geojson.dumps(featureCollection)
-    elif isinstance(featureCollection, file):
-        featureCollection = featureCollection.read()
-    return k.set_contents_from_string(featureCollection, headers={'Content-Type': contentType})
+        return k.set_contents_from_string(featureCollection, headers=headers)
+    elif isinstance(featureCollection, BytesIO):
+        headers['Content-Encoding'] = 'gzip'
+        return k.set_contents_from_file(featureCollection, headers=headers)
