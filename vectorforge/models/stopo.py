@@ -7,9 +7,9 @@ from geoalchemy2.types import Geometry
 from vectorforge.models import init, bases, register, Vector
 
 
-if bases.get('stopo') is None:
+if bases.get('stopo_dev') is None:
     init()
-Base = bases.get('stopo')
+Base = bases.get('stopo_dev')
 
 
 # Points
