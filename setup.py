@@ -8,22 +8,7 @@ with open(os.path.join(here, 'README.md')) as f:
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
-requires = [
-    'boto',
-    'geoalchemy2',
-    'geojson',
-    'httplib2',
-    'psycopg2',
-    'pyflakes',
-    'pyramid',
-    'pyramid_mako',
-    'pyramid_debugtoolbar',
-    'regex',
-    'shapely',
-    'SQLAlchemy',
-    'visvalingam',
-    'waitress',
-    ]
+requires = open(os.path.join(here, 'requirements.txt')).read().split('\n')
 
 setup(name='vector-forge',
       version='0.0',
