@@ -1,5 +1,5 @@
 boto
-geoalchemy2
+geoalchemy2==0.3.0.dev1
 geojson
 httplib2
 mapbox-vector-tile
