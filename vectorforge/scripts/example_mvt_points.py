@@ -35,8 +35,8 @@ def geoadminTileGrid(zoomlevels):
         tileRow = 0
         while grid.maxX >= maxX:
             while grid.minY <= minY:
-                # [minX, minY, maxX, maxY]
-                yield zoomLevel, grid.tileBounds(tileCol, tileRow), tileCol, tileRow
+                tileBounds = [minX, minY, maxX, maxY] = grid.tileBounds(tileCol, tileRow)
+                yield zoomLevel, tileBounds, tileCol, tileRow
                 tileRow += 1
             minY = grid.minY
             tileCol += 1
@@ -67,7 +67,8 @@ def quantizeGeomToMVT(geometry, tileExtent):
 
     def quantizeCoordToMVT(x, y):
         xq = int((x - minX) * MVT_EXTENT / xSpan)
-        yq = MVT_EXTENT - int((y - minY) * MVT_EXTENT / ySpan)
+        # Downward inversion is performed in encoder
+        yq = int((y - minY) * MVT_EXTENT / ySpan)
         return (xq, yq)
 
     # Only simple types for now
@@ -101,7 +102,6 @@ def main():
         conn = s3Connect('ltgal_aws_admin')
         bucket = getBucket(conn)
         counter = 0
-        t1 = time.time()
         for zoomLevel, tileExtent, tileCol, tileRow in geoadminTileGrid(range(0, len(RESOLUTIONS[0:24]))):
             clippedGeometry = model.bboxClippedGeom(tileExtent)
             query = DBSession.query(model, clippedGeometry)
@@ -125,9 +125,9 @@ def main():
                     bucket, path, gzipFileObject(f), 'vector-forge',
                     basePath, contentType='application/x-protobuf', contentEnc='gzip')
                 counter += 1
-                if counter % 1000 == 0:
-                    t2 = time.time()
-                    ti = t2 - t1
+                if counter % 100 == 0:
+                    t1 = time.time()
+                    ti = t1 - t0
                     print 'Last tile addresss was %s' % basePath + path
                     print '%s tiles have been generated so far' % counter
                     print 'It took %s' %str(datetime.timedelta(seconds=ti))
