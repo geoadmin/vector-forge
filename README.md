@@ -1,7 +1,12 @@
 vector-forge
 ============
 
-# Getting started
+## Description
+
+This repo is a sandbox where tests are performed.
+
+
+## Getting started
 
 Create your own `rc` file:
 

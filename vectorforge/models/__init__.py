@@ -9,9 +9,9 @@ from geoalchemy2.elements import WKBElement
 from shapely.geometry import box
 
 # Defined here to be called from outside the web app
-host = 'localhost'
-port = '5432'
-dbs = ['bod', 'stopo']
+dbhost = 'pg-sandbox.bgdi.ch'
+dbport = '5432'
+dbs = ['bod_dev', 'stopo_dev']
 
 class Engines(object):
     def __init__(self, engines={}):
@@ -51,7 +51,7 @@ def register(layerID, model):
 
 def init():
     for dbname in dbs:
-        engine = create_engine('postgresql://%s:%s/%s' %(host, port, dbname))
+        engine = create_engine('postgresql://%s:%s/%s' %(dbhost, dbport, dbname))
         engines.add(engine, dbname)
         bases.add(engine, dbname)
 

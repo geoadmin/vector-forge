@@ -4,7 +4,7 @@
 development.ini
 production.ini
 vector_forge.egg-info
-venv
+.venv
 node_modules
 temp*.json
 output*.json

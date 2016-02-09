@@ -1,5 +1,6 @@
-VENV = venv
+VENV = .venv
 PYTHON_CMD = $(VENV)/bin/python
+PYFLAKES_CMD = $(VENV)/bin/pyflakes
 USER = $(shell whoami)
 
 .PHONY: help
@@ -41,7 +42,7 @@ template:
 
 .PHONY: lint
 lint:
-	venv/bin/pyflakes vectorforge/
+	$(PYFLAKES_CMD) vectorforge/
 
 .PHONY: dev
 dev:
@@ -49,7 +50,7 @@ dev:
 
 .PHONY: clean
 clean:
-	rm -rf venv
+	rm -rf $(VENV)
 	rm -rf vector_forge.egg-info
 	rm -f *.ini
 	rm -rf node_modules

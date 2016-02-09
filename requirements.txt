@@ -1,0 +1,15 @@
+boto
+geoalchemy2==0.3.0.dev1
+geojson
+httplib2
+mapbox-vector-tile
+psycopg2
+pyflakes
+pyramid
+pyramid_mako
+pyramid_debugtoolbar
+regex
+shapely
+SQLAlchemy
+visvalingam
+waitress
