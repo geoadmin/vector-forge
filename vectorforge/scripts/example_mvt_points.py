@@ -66,9 +66,9 @@ def quantizeGeomToMVT(geometry, tileExtent):
     ySpan = maxY - minY
 
     def quantizeCoordToMVT(x, y):
-        xq = int((x - minX) * MVT_EXTENT / xSpan)
+        xq = int(round((x - minX) * MVT_EXTENT / xSpan))
         # Downward inversion is performed in encoder
-        yq = int((y - minY) * MVT_EXTENT / ySpan)
+        yq = int((round(y - minY) * MVT_EXTENT / ySpan))
         return (xq, yq)
 
     # Only simple types for now
