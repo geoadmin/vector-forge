@@ -2,16 +2,17 @@
 
 import sys
 import time
-import datetime
 import geojson
 import subprocess
+import datetime
 import traceback
+from gatilegrid import GeoadminTileGrid
 from sqlalchemy import or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKBElement
+from vectorforge.lib.helpers import printProgress
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, setFileContent, preparePath
-from vectorforge.lib.grid import Grid, RESOLUTIONS
 from vectorforge.lib.encoders import gzippedFileContent
 from vectorforge.models.stopo import Vec25Strassennetz
 
@@ -77,7 +78,7 @@ zoomFilters = {
 }
 
 t0 = time.time()
-conn = s3Connect()
+conn = s3Connect('ltgal_aws_admin')
 b = getBucket(conn)
 model = Vec25Strassennetz
 layerId = model.__bodId__
@@ -85,53 +86,53 @@ propertyColumn = model.objectval
 DBSession = scoped_session(sessionmaker())
 
 try:
-    for zoomLevel in range(0, len(RESOLUTIONS[0:24])):
-        t1 = time.time()
+    inputFileName = u'temp.json'
+    outputFileName = u'output.json'
+    minZoom = 0
+    maxZoom = 24
+    gagrid = GeoadminTileGrid()
+    tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-        grid = Grid(zoomLevel)
-        maxX = grid.maxX
-        minY = grid.minY
-        tileCol = 0
-        tileRow = 0
-        resolution = RESOLUTIONS[zoomLevel]
-        propertyValues = zoomFilters[str(zoomLevel)]
-        inputFileName = u'temp.json'
-        outputFileName = u'output.json'
+    resolution = gagrid.getResolution(minZoom)
+    currentZ = minZoom
+    propertyValues = zoomFilters[str(currentZ)]
+    t1 = time.time()
+    for tileBounds, zoom, col, row in tileGrid:
+        if currentZ != zoom:
+            printProgress(t1, currentZ)
+            t1 = time.time()
+            # Constants per zoom level
+            currentZ = zoom
+            resolution = gagrid.getResolution(zoom)
+            propertyValues = zoomFilters[str(zoom)]
 
-        while grid.maxX >= maxX:
-            while grid.minY <= minY:
-                bbox = [minX, minY, maxX, maxY] = grid.tileBounds(tileCol, tileRow)
-                clippedGeometry = model.bboxClippedGeom(bbox).label('clippedGeom')
-                # Convert multilinestrings to linestrings
-                lineMerged = model.lineMerge()
-                query = DBSession.query(model, lineMerged)
-                query = query.filter(model.bboxIntersects(bbox))
-                query = applyFilters(query, propertyColumn, propertyValues)
+        bbox = gagrid.tileBounds(zoom, col, row)
+        lineMerged = model.lineMerge()
+        query = DBSession.query(model, lineMerged)
+        query = query.filter(model.bboxIntersects(bbox))
+        query = applyFilters(query, propertyColumn, propertyValues)
 
-                features = []
-                for res in query:
-                    ID = res[0].id
-                    properties = res[0].getProperties()
-                    shapelyGeometry = to_shape(WKBElement(buffer(res[1]), 21781))
-                    geoJSONFeature = geojson.Feature(ID, geometry=shapelyGeometry, properties=properties)
-                    features.append(geoJSONFeature) 
-                featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
-                writeGeojsonFile(featureCollection, inputFileName)
-                fileName = toTopojson(resolution*2, grid.tileSizeInPixel, 'objectval', inputFileName, outputFileName)
+        features = []
+        for res in query:
+            ID = res[0].id
+            properties = res[0].getProperties()
+            shapelyGeometry = to_shape(WKBElement(buffer(res[1]), srid=21781))
+            geoJSONFeature = geojson.Feature(
+                ID, geometry=shapelyGeometry, properties=properties
+            )
+            features.append(geoJSONFeature)
 
-                path = preparePath(layerId, zoomLevel, tileCol, tileRow, 'json')
-                print path
-                compressedContent = gzippedFileContent(fileName)
-                setFileContent(b, path, compressedContent)
-                clean(inputFileName, outputFileName)
-                tileRow += 1
-            minY = grid.minY
-            tileCol += 1
-            tileRow = 0
-        t2 = time.time()
-        ti = t2 - t1
-        print 'All tiles have been generated for zoom level: %s' %zoomLevel
-        print 'It took %s' %str(datetime.timedelta(seconds=ti))
+        featureCollection = geojson.FeatureCollection(
+            features, crs={'type': 'EPSG', 'properties': {'code': '21781'}}
+        )
+        writeGeojsonFile(featureCollection, inputFileName)
+        fileName = toTopojson(resolution*2, gagrid.tileSizePx, 'objectval', inputFileName, outputFileName)
+        path = preparePath(layerId, zoom, col, row, 'json')
+        compressedContent = gzippedFileContent(fileName)
+        setFileContent(b, path, compressedContent)
+        clean(inputFileName, outputFileName)
+    # Print progress for the last zoom level
+    printProgress(t1, zoom)
 except Exception:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     print "*** Traceback:"

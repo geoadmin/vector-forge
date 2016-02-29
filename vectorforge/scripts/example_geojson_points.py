@@ -5,16 +5,17 @@ import datetime
 import geojson
 import sys
 import traceback
+from gatilegrid import GeoadminTileGrid
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
+from vectorforge.lib.helpers import printProgress
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, setFileContent, preparePath
-from vectorforge.lib.grid import Grid, RESOLUTIONS
 from vectorforge.models.stopo import Vec200Namedlocation
 
 
 t0 = time.time()
 
-conn = s3Connect()
+conn = s3Connect('ltgal_aws_admin')
 b = getBucket(conn)
 model = Vec200Namedlocation
 layerId = model.__bodId__
@@ -22,36 +23,34 @@ DBSession = scoped_session(sessionmaker())
 
 
 try:
-    for zoomLevel in range(0, len(RESOLUTIONS[0:24])):
-        t1 = time.time()
+    minZoom = 0
+    maxZoom = 24
+    gagrid = GeoadminTileGrid()
+    tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-        grid = Grid(zoomLevel)
-        maxX = grid.maxX
-        minY = grid.minY
-        tileCol = 0
-        tileRow = 0
-
-        while grid.maxX >= maxX:
-            while grid.minY <= minY:
-                bbox = [minX, minY, maxX, maxY] = grid.tileBounds(tileCol, tileRow)
-                clippedGeometry = model.bboxClippedGeom(bbox)
-                query = DBSession.query(model, clippedGeometry)
-                query = query.filter(model.bboxIntersects(bbox))
-
-                features = [
-                    geojson.Feature(res[0].id, geometry=to_shape(res[1]), properties=res[0].getProperties()) for res in query
-                ]
-                featureCollection = geojson.FeatureCollection(features, crs={'type': 'EPSG', 'properties': {'code': '21781'}})
-                path = preparePath(layerId, zoomLevel, tileCol, tileRow)
-                setFileContent(b, path, featureCollection)
-                tileRow += 1
-            minY = grid.minY
-            tileCol += 1
-            tileRow = 0
-        t2 = time.time()
-        ti = t2 - t1
-        print 'All tiles have been generated for zoom level: %s' %zoomLevel
-        print 'It took %s' %str(datetime.timedelta(seconds=ti))
+    currentZ = minZoom
+    t1 = time.time()
+    for tileBounds, zoom, col, row in tileGrid:
+        if currentZ != zoom:
+            printProgress(t1, currentZ)
+            currentZ = zoom
+            t1 = time.time()
+        features = []
+        bbox = gagrid.tileBounds(zoom, col, row)
+        clippedGeometry = model.bboxClippedGeom(bbox)
+        query = DBSession.query(model, clippedGeometry)
+        query = query.filter(model.bboxIntersects(bbox))
+        for res in query:
+            features.append(
+                geojson.Feature(res[0].id, geometry=to_shape(res[1]), properties=res[0].getProperties())
+            )
+        featureCollection = geojson.FeatureCollection(
+                features, crs={'type': 'EPSG', 'properties': {'code': '21781'}}
+        )
+        path = preparePath(layerId, zoom, col, row)
+        setFileContent(b, path, featureCollection)
+    # Print progress for the last zoom level
+    printProgress(t1, zoom)
 except Exception:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     print "*** Traceback:"

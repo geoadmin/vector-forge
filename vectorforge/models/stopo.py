@@ -7,9 +7,9 @@ from geoalchemy2.types import Geometry
 from vectorforge.models import init, bases, register, Vector
 
 
-if bases.get('stopo_dev') is None:
+if bases.get('stopo_int') is None:
     init()
-Base = bases.get('stopo_dev')
+Base = bases.get('stopo_int')
 
 
 # Points
@@ -28,7 +28,7 @@ register('ch.swisstopo.vec200-names-namedlocation', Vec200Namedlocation)
 
 # Lines
 class Vec25Strassennetz(Base, Vector):
-    __tablename__ = 'v25_str_25_l_tooltip'
+    __tablename__ = 'v25_str_25_l'
     __table_args__ = ({'autoload': False})
     __bodId__ = 'ch.swisstopo.vec25-strassennetz'
     id = Column('objectid', Integer, primary_key=True)
