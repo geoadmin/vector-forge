@@ -28,7 +28,10 @@ all: install template lint
 
 .PHONY: install
 install:
-	virtualenv $(VENV) --distribute
+	@if [ ! -d $(VENV) ]; \
+	then \
+		virtualenv $(VENV) --distribute; \
+	fi; \
 	$(PYTHON_CMD) setup.py develop
 	npm install
 

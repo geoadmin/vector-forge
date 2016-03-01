@@ -11,7 +11,7 @@ from shapely.geometry import box
 # Defined here to be called from outside the web app
 dbhost = 'pg-sandbox.bgdi.ch'
 dbport = '5432'
-dbs = ['bod_dev', 'stopo_dev']
+dbs = ['bod_int', 'stopo_int']
 
 class Engines(object):
     def __init__(self, engines={}):
@@ -70,9 +70,9 @@ class Vector(object):
     :param bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
     """
     @classmethod
-    def bboxClippedGeom(cls, bbox, srid=21781):
+    def bboxClippedGeom(cls, bbox, srid=21781, extended=False):
         bboxGeom = shapelyBBox(bbox)
-        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid)
+        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid=srid, extended=extended)
         geomColumn = cls.geometryColumn()
         return func.ST_Intersection(geomColumn, wkbGeometry)
 
@@ -82,9 +82,9 @@ class Vector(object):
     :params bbox: A list of 4 coordinates [minX, minX, maxX, maxY]
     """
     @classmethod
-    def bboxIntersects(cls, bbox, srid=21781):
+    def bboxIntersects(cls, bbox, srid=21781, extended=False):
         bboxGeom = shapelyBBox(bbox)
-        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid)
+        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid=srid, extended=extended)
         geomColumn = cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
 

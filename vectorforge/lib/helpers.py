@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import time
+import datetime
 import gzip
 import cStringIO
+
+
+def printProgress(t1, zoom):
+    t2 = time.time()
+    ti = t2 - t1
+    print 'All tiles have been generated for zoom level: %s' % zoom
+    print 'It took %s' % str(datetime.timedelta(seconds=ti))
 
 
 def gzipFileContent(filePath):

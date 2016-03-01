@@ -7,6 +7,7 @@ import sys
 import traceback
 import mapbox_vector_tile
 
+from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
 from shapely.geometry.point import Point
@@ -17,25 +18,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
 from vectorforge.lib.helpers import gzipFileObject
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, writeToS3
-from vectorforge.lib.grid import Grid, RESOLUTIONS
 from vectorforge.models.stopo import Vec200Namedlocation
-
-
-def geoadminTileGrid(zoomlevels):
-    for zoomLevel in zoomlevels:
-        grid = Grid(zoomLevel)
-        maxX = grid.maxX
-        minY = grid.minY
-        tileCol = 0
-        tileRow = 0
-        while grid.maxX >= maxX:
-            while grid.minY <= minY:
-                tileBounds = [minX, minY, maxX, maxY] = grid.tileBounds(tileCol, tileRow)
-                yield (zoomLevel, tileBounds, tileCol, tileRow)
-                tileRow += 1
-            minY = grid.minY
-            tileCol += 1
-            tileRow = 0
 
 
 def featureMVT(geometry, properties):
@@ -89,7 +72,7 @@ skippedTilesCounter = 0
 def createTile(tileSpec):
     fullPath = None
     try:
-        (zoomLevel, tileBounds, tileCol, tileRow) = tileSpec
+        (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
         model = Vec200Namedlocation
         layerBodId = model.__bodId__
         DBSession = scoped_session(sessionmaker())
@@ -142,7 +125,8 @@ def callback(counter, fullPath):
 
 
 def main():
-    tileGrid = geoadminTileGrid(range(0, len(RESOLUTIONS[0:24])))
+    gagrid = GeoadminTileGrid()
+    tileGrid = gagrid.iterGrid(0, 24)
     pm = PoolManager(numProcs=2)
     pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 
