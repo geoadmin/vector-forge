@@ -19,12 +19,13 @@ def getBucket(conn):
         # TODO move S3 bucket name in a config file
         b = conn.get_bucket('mwks6dv2y5dsbbgg-vectortiles')
     except Exception as e:
-        raise e 
+        raise e
     return b
 
 
 def preparePath(layerId, zoomLevel, tileCol, tileRow, tileFormat='geojson'):
-    return '%s/%s/%s/%s.%s' %(layerId, zoomLevel, tileCol, tileRow, tileFormat)
+    return '%s/%s/%s/%s.%s' % (layerId, zoomLevel,
+                               tileCol, tileRow, tileFormat)
 
 
 def setFileContent(b, path, featureCollection, contentType='application/json'):
@@ -40,7 +41,7 @@ def setFileContent(b, path, featureCollection, contentType='application/json'):
 
 
 def writeToS3(b, path, content, origin, bucketBasePath,
-        contentType='application/octet-stream', contentEnc='gzip'):
+              contentType='application/octet-stream', contentEnc='gzip'):
     headers = {'Content-Type': contentType}
     k = Key(b)
     k.key = bucketBasePath + path

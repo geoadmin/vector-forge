@@ -1,7 +1,9 @@
 VENV = .venv
 PYTHON_CMD = $(VENV)/bin/python
 PYFLAKES_CMD = $(VENV)/bin/pyflakes
+AUTOPEP8_CMD = $(VENV)/bin/autopep8
 USER = $(shell whoami)
+PYTHON_FILES = $(shell find vectorforge/ -type f -name "*.py" -print)
 
 .PHONY: help
 help:
@@ -12,6 +14,7 @@ help:
 	@echo "- install            Install the app"
 	@echo "- template           Create templates"
 	@echo "- lint               Linter for python code"
+	@echo "- autolint						Autolint all python files"
 	@echo "- all                All of the above"
 	@echo "- dev                Enter dev shell"
 	@echo "- clean              Clean all generated files and folders"
@@ -45,7 +48,11 @@ template:
 
 .PHONY: lint
 lint:
-	$(PYFLAKES_CMD) vectorforge/
+	$(PYFLAKES_CMD) $(PYTHON_FILES)
+
+.PHONY: autolint
+autolint:
+	$(AUTOPEP8_CMD) --in-place --aggressive --aggressive --verbose $(PYTHON_FILES)
 
 .PHONY: dev
 dev:

@@ -4,21 +4,18 @@ import cStringIO
 import time
 import datetime
 import sys
-import traceback
+import json
 import mapbox_vector_tile
 
 from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
-from shapely.geometry.point import Point
-from shapely.geometry.linestring import LineString
-from shapely.geometry.polygon import Polygon
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
+from vectorforge.models.stopo import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, writeToS3
-from vectorforge.models.stopo import Vec200Namedlocation
 
 
 def featureMVT(geometry, properties):
@@ -35,46 +32,24 @@ def layerMVT(layerName, features):
     })
 
 
-def quantizeGeomToMVT(geometry, tileExtent):
-    # geometry -> a shapely geometry
-    # MVT tiles have a hardcoded tile extent of 4096 units
-    MVT_EXTENT = 4096
-    [minX, minY, maxX, maxY] = tileExtent
-    xSpan = maxX - minX
-    ySpan = maxY - minY
-
-    def quantizeCoordToMVT(x, y):
-        xq = int(round((x - minX) * MVT_EXTENT / xSpan))
-        # Downward inversion is performed in encoder
-        yq = int((round(y - minY) * MVT_EXTENT / ySpan))
-        return (xq, yq)
-
-    # Only simple types for now
-    if isinstance(geometry, Point):
-        coords = list(geometry.coords)
-        qcoords = quantizeCoordToMVT(coords[0][0], coords[0][1])
-        return Point(qcoords)
-    elif isinstance(geometry, LineString):
-        coords = list(geometry.coords) 
-        qcoords = []
-        for coord in coords[0]:
-            qcoords.append(quantizeCoordToMVT(coord[0], coord[1]))
-        return LineString(qcoords)
-    elif isinstance(geometry, Polygon):
-        coords = list(geometry.exterior.coords)
-        qcoords = []
-        for coord in coords[0]:
-            qcoords.append(quantizeCoordToMVT(coord[0], coord[1]))
-        return Polygon(qcoords)
+def parseJsonConf(pathToConf):
+    with open(pathToConf, 'r') as f:
+        conf = json.load(f)
+    return conf
 
 
 skippedTilesCounter = 0
+
+
 def createTile(tileSpec):
-    fullPath = None
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
-        model = Vec200Namedlocation
-        layerBodId = model.__bodId__
+        if lods is not None:
+            tablename = lods[str(zoomLevel)]
+            model = getModelFromBodId(layerBodId, tablename=tablename)
+        else:
+            model = getModelFromBodId(layerBodId)
+
         DBSession = scoped_session(sessionmaker())
         basePath = '1.0.0/%s/21781/default/' % layerBodId
         clippedGeometry = model.bboxClippedGeom(tileBounds)
@@ -84,24 +59,24 @@ def createTile(tileSpec):
         for feature in query:
             properties = feature[0].getProperties()
             properties['id'] = feature[1].id
-            qgeometry = quantizeGeomToMVT(to_shape(feature[1]), tileBounds)
-            features.append(featureMVT(qgeometry, properties))
+            geometry = to_shape(feature[1])
+            features.append(featureMVT(geometry, properties))
         if len(features) > 0:
-            path = '%s/%s/%s.pbf' %(zoomLevel, tileCol, tileRow)
+            path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             mvt = layerMVT(model.__bodId__, features)
             f = cStringIO.StringIO()
             f.write(mvt)
             writeToS3(
-                bucket, path, gzipFileObject(f), 'vector-forge',
-                basePath, contentType='application/x-protobuf', contentEnc='gzip')
+                bucket,
+                path,
+                gzipFileObject(f),
+                'vector-forge',
+                basePath,
+                contentType='application/x-protobuf',
+                contentEnc='gzip')
             fullPath = basePath + path
-    except Exception:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print "*** Traceback:"
-        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-        print "*** Exception:"
-        traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                  limit=2, file=sys.stdout)
+    except Exception as e:
+        raise Exception(e)
     finally:
         DBSession.close()
     return fullPath
@@ -125,8 +100,28 @@ def callback(counter, fullPath):
 
 
 def main():
-    gagrid = GeoadminTileGrid()
-    tileGrid = gagrid.iterGrid(0, 24)
+    if len(sys.argv) != 2:
+        print 'Please provide a json configuration. Exit.'
+        sys.exit(1)
+    try:
+        conf = parseJsonConf(sys.argv[1])
+    except Exception as e:
+        print 'Error while parsing json file'
+        raise Exception(e)
+
+    global layerBodId
+    global lods
+    layerBodId = conf.get('layerBodId')
+    lods = conf.get('lods')
+
+    extent = conf.get('extent')
+    tileSizePx = conf.get('tileSizePx', 256.0)
+    gagrid = GeoadminTileGrid(extent=extent, tileSizePx=float(tileSizePx))
+
+    minZoom = conf.get('minZoom', 0)
+    maxZoom = conf.get('maxZoom', 0)
+    tileGrid = gagrid.iterGrid(minZoom, maxZoom)
+
     pm = PoolManager(numProcs=2)
     pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 

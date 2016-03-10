@@ -2,7 +2,7 @@
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
-from vectorforge.models.stopo import SwissboundariesGemeinde 
+from vectorforge.models.stopo import SwissboundariesGemeinde
 
 DBSession = scoped_session(sessionmaker())
 

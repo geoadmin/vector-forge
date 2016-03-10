@@ -13,7 +13,9 @@ dbhost = 'pg-sandbox.bgdi.ch'
 dbport = '5432'
 dbs = ['bod_int', 'stopo_int']
 
+
 class Engines(object):
+
     def __init__(self, engines={}):
         self.engines = engines
 
@@ -28,6 +30,7 @@ class Engines(object):
 
 
 class Bases(object):
+
     def __init__(self):
         self.bases = {}
 
@@ -40,20 +43,28 @@ class Bases(object):
     def add(self, engine, dbname):
         base = declarative_base()
         base.metadata.bind = engine
-        self.bases[dbname] = base 
+        self.bases[dbname] = base
 
 engines = Engines()
 bases = Bases()
 layers = {}
 
-def register(layerID, model):
-    layers[layerID] = model
+
+def register(layerId, model):
+    if layerId not in layers:
+        layers[layerId] = [model]
+    else:
+        layers[layerId].append(model)
+
 
 def init():
     for dbname in dbs:
-        engine = create_engine('postgresql://%s:%s/%s' %(dbhost, dbport, dbname))
+        engine = create_engine(
+            'postgresql://%s:%s/%s' %
+            (dbhost, dbport, dbname))
         engines.add(engine, dbname)
         bases.add(engine, dbname)
+
 
 class Vector(object):
 
@@ -72,7 +83,11 @@ class Vector(object):
     @classmethod
     def bboxClippedGeom(cls, bbox, srid=21781, extended=False):
         bboxGeom = shapelyBBox(bbox)
-        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid=srid, extended=extended)
+        wkbGeometry = WKBElement(
+            buffer(
+                bboxGeom.wkb),
+            srid=srid,
+            extended=extended)
         geomColumn = cls.geometryColumn()
         return func.ST_Intersection(geomColumn, wkbGeometry)
 
@@ -84,7 +99,11 @@ class Vector(object):
     @classmethod
     def bboxIntersects(cls, bbox, srid=21781, extended=False):
         bboxGeom = shapelyBBox(bbox)
-        wkbGeometry = WKBElement(buffer(bboxGeom.wkb), srid=srid, extended=extended)
+        wkbGeometry = WKBElement(
+            buffer(
+                bboxGeom.wkb),
+            srid=srid,
+            extended=extended)
         geomColumn = cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
 
@@ -99,18 +118,19 @@ class Vector(object):
         return func.ST_AsEWKB(func.ST_LineMerge(geomColumn))
 
     def getProperties(self):
-        """ 
+        """
         Expose all that is not an id and a geometry
         """
         properties = {}
         for column in self.__table__.columns:
-          isPrimaryKey = bool(self.primaryKeyColumn() == column)
-          isGeometry = bool(self.geometryColumn() == column)
-          if not isPrimaryKey and not isGeometry:
-              # As mapped on the model
-              propertyName = self.__mapper__.get_property_by_column(column).key
-              propertyValue = getattr(self, column.name)
-              properties[propertyName] = formatPropertyValue(propertyValue)
+            isPrimaryKey = bool(self.primaryKeyColumn() == column)
+            isGeometry = bool(self.geometryColumn() == column)
+            if not isPrimaryKey and not isGeometry:
+                # As mapped on the model
+                propertyName = self.__mapper__.get_property_by_column(
+                    column).key
+                propertyValue = getattr(self, column.name)
+                properties[propertyName] = formatPropertyValue(propertyValue)
         return properties
 
 
@@ -118,6 +138,8 @@ class Vector(object):
 Returns a shapely.geometry.polygon.Polygon
 :param bbox: A list of 4 cooridinates [minX, minY, maxX, maxY]
 """
+
+
 def shapelyBBox(bbox):
     return box(*bbox)
 
@@ -126,6 +148,8 @@ def shapelyBBox(bbox):
 Returns a primitive type like value (int, str, bool, ...)
 :param prop: A feature property
 """
+
+
 def formatPropertyValue(prop):
     if isinstance(prop, decimal.Decimal):
         return prop.__float__()
