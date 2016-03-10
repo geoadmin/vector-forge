@@ -46,8 +46,11 @@ engines = Engines()
 bases = Bases()
 layers = {}
 
-def register(layerID, model):
-    layers[layerID] = model
+def register(layerId, model):
+    if layerId not in layers:
+        layers[layerId] = [model]
+    else:
+        layers[layerId].append(model)
 
 def init():
     for dbname in dbs:

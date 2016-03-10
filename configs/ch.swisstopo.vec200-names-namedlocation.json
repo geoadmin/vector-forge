@@ -1,0 +1,8 @@
+{
+  "layerBodId": "ch.swisstopo.vec200-names-namedlocation",
+  "tileSizePx": 256,
+  "minZoom": 0,
+  "maxZoom": 26,
+  "extent": null,
+  "lods": null
+}

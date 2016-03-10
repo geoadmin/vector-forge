@@ -4,7 +4,7 @@ from sqlalchemy import Column, Text, Integer, Float
 from sqlalchemy.types import Numeric
 from geoalchemy2.types import Geometry
 
-from vectorforge.models import init, bases, register, Vector
+from vectorforge.models import init, bases, register, Vector, layers
 
 
 if bases.get('stopo_int') is None:
@@ -54,3 +54,13 @@ class SwissboundariesGemeinde(Base, Vector):
                                dimension=2, srid=21781))
 
 register('ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill', SwissboundariesGemeinde)
+
+
+def getModelFromBodId(bodId, tablename=None):
+    models = layers.get(bodId)
+    if len(models) == 1:
+        return models[0]
+    if tablename is not None:
+        for model in models:
+            if model.__tablename__ == 'tablename':
+                return model
