@@ -39,6 +39,8 @@ def parseJsonConf(pathToConf):
 
 
 skippedTilesCounter = 0
+
+
 def createTile(tileSpec):
     fullPath = None
     try:
@@ -61,13 +63,18 @@ def createTile(tileSpec):
             geometry = to_shape(feature[1])
             features.append(featureMVT(geometry, properties))
         if len(features) > 0:
-            path = '%s/%s/%s.pbf' %(zoomLevel, tileCol, tileRow)
+            path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             mvt = layerMVT(model.__bodId__, features)
             f = cStringIO.StringIO()
             f.write(mvt)
             writeToS3(
-                bucket, path, gzipFileObject(f), 'vector-forge',
-                basePath, contentType='application/x-protobuf', contentEnc='gzip')
+                bucket,
+                path,
+                gzipFileObject(f),
+                'vector-forge',
+                basePath,
+                contentType='application/x-protobuf',
+                contentEnc='gzip')
             fullPath = basePath + path
     except Exception as e:
         raise Exception(e)

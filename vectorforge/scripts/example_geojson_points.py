@@ -42,10 +42,13 @@ try:
         query = query.filter(model.bboxIntersects(bbox))
         for res in query:
             features.append(
-                geojson.Feature(res[0].id, geometry=to_shape(res[1]), properties=res[0].getProperties())
-            )
+                geojson.Feature(
+                    res[0].id,
+                    geometry=to_shape(
+                        res[1]),
+                    properties=res[0].getProperties()))
         featureCollection = geojson.FeatureCollection(
-                features, crs={'type': 'EPSG', 'properties': {'code': '21781'}}
+            features, crs={'type': 'EPSG', 'properties': {'code': '21781'}}
         )
         path = preparePath(layerId, zoom, col, row)
         setFileContent(b, path, featureCollection)
@@ -63,4 +66,4 @@ finally:
     t3 = time.time()
     tf = t3 - t0
     print 'Tile generation process ended/stopped.'
-    print 'It took %s' %str(datetime.timedelta(seconds=tf))
+    print 'It took %s' % str(datetime.timedelta(seconds=tf))

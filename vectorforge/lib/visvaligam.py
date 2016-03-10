@@ -2,7 +2,9 @@
 
 from visvalingam import VisvalingamSimplification
 
+
 class VisvalingamSimplificationFix(VisvalingamSimplification):
+
     def simplifyLineString(self, tolerance_):
         tolerance = tolerance_
         # It is enough to enrich the line once

@@ -25,21 +25,32 @@ We also use quantization which is more or less like rasterinzing the input
 and thematic filtering to only keep the main road segments at low resolutions.
 """
 
+
 def writeGeojsonFile(data, fileName):
     with open(fileName, 'w') as outfile:
         outfile.write(geojson.dumps(data))
 
+
 def toTopojson(threshold, quantization, prop, inputFileName, outputFileName):
     """ Try quantization """
-    subprocess.call([
-        'node_modules/.bin/topojson', '-o', outputFileName,
-        '--cartesian', '-s', str(threshold), '-q', str(quantization), '-p', prop, inputFileName
-    ])
+    subprocess.call(['node_modules/.bin/topojson',
+                     '-o',
+                     outputFileName,
+                     '--cartesian',
+                     '-s',
+                     str(threshold),
+                     '-q',
+                     str(quantization),
+                     '-p',
+                     prop,
+                     inputFileName])
     return outputFileName
+
 
 def clean(inputFileName, outputFileName):
     subprocess.call(['rm', '-f', inputFileName])
     subprocess.call(['rm', '-f', outputFileName])
+
 
 def applyFilters(query, propertyColumn, propertyValues):
     clauses = []
@@ -51,31 +62,84 @@ def applyFilters(query, propertyColumn, propertyValues):
 
 
 zoomFilters = {
-  '0': ['Autobahn'],
-  '1': ['Autobahn'],
-  '2': ['Autobahn'],
-  '3': ['Autobahn'],
-  '4': ['Autobahn'],
-  '5': ['Autobahn'],
-  '6': ['Autobahn'],
-  '7': ['Autobahn'],
-  '8': ['Autobahn'],
-  '9': ['Autobahn'],
-  '10': ['Autobahn', 'Ein_Ausf'],
-  '11': ['Autobahn', 'Ein_Ausf'],
-  '12': ['Autobahn', 'Ein_Ausf'],
-  '13': ['Autobahn', 'Ein_Ausf'],
-  '14': ['Autobahn', 'Ein_Ausf'],
-  '15': ['Autobahn', 'Ein_Ausf'],
-  '16': ['Autobahn', 'Ein_Ausf', '1_Klass'],
-  '17': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass'],
-  '18': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass', '3_Klass'],
-  '19': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass', '3_Klass', '4_Klass'],
-  '20': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass', '3_Klass', '4_Klass', '5_Klass'],
-  '21': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass', '3_Klass', '4_Klass', '5_Klass', '6_Klass'],
-  '22': ['Autobahn', 'Ein_Ausf', '1_Klass', '2_Klass', '3_Klass', '4_Klass', '5_Klass', '6_Klass', 'Q_Klass'],
-  '23': ['*']
-}
+    '0': ['Autobahn'],
+    '1': ['Autobahn'],
+    '2': ['Autobahn'],
+    '3': ['Autobahn'],
+    '4': ['Autobahn'],
+    '5': ['Autobahn'],
+    '6': ['Autobahn'],
+    '7': ['Autobahn'],
+    '8': ['Autobahn'],
+    '9': ['Autobahn'],
+    '10': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '11': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '12': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '13': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '14': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '15': [
+        'Autobahn',
+        'Ein_Ausf'],
+    '16': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass'],
+    '17': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass'],
+    '18': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass',
+        '3_Klass'],
+    '19': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass',
+        '3_Klass',
+        '4_Klass'],
+    '20': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass',
+        '3_Klass',
+        '4_Klass',
+        '5_Klass'],
+    '21': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass',
+        '3_Klass',
+        '4_Klass',
+        '5_Klass',
+        '6_Klass'],
+    '22': [
+        'Autobahn',
+        'Ein_Ausf',
+        '1_Klass',
+        '2_Klass',
+        '3_Klass',
+        '4_Klass',
+        '5_Klass',
+        '6_Klass',
+        'Q_Klass'],
+    '23': ['*']}
 
 t0 = time.time()
 conn = s3Connect('ltgal_aws_admin')
@@ -126,7 +190,12 @@ try:
             features, crs={'type': 'EPSG', 'properties': {'code': '21781'}}
         )
         writeGeojsonFile(featureCollection, inputFileName)
-        fileName = toTopojson(resolution*2, gagrid.tileSizePx, 'objectval', inputFileName, outputFileName)
+        fileName = toTopojson(
+            resolution * 2,
+            gagrid.tileSizePx,
+            'objectval',
+            inputFileName,
+            outputFileName)
         path = preparePath(layerId, zoom, col, row, 'json')
         compressedContent = gzippedFileContent(fileName)
         setFileContent(b, path, compressedContent)
@@ -149,4 +218,4 @@ finally:
     t3 = time.time()
     tf = t3 - t0
     print 'Tile generation process ended/stopped.'
-    print 'It took %s' %str(datetime.timedelta(seconds=tf))
+    print 'It took %s' % str(datetime.timedelta(seconds=tf))
