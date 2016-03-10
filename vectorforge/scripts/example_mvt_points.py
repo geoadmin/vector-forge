@@ -10,9 +10,6 @@ import mapbox_vector_tile
 from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
-from shapely.geometry.point import Point
-from shapely.geometry.linestring import LineString
-from shapely.geometry.polygon import Polygon
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
@@ -35,39 +32,6 @@ def layerMVT(layerName, features):
     })
 
 
-def quantizeGeomToMVT(geometry, tileExtent):
-    # geometry -> a shapely geometry
-    # MVT tiles have a hardcoded tile extent of 4096 units
-    MVT_EXTENT = 4096
-    [minX, minY, maxX, maxY] = tileExtent
-    xSpan = maxX - minX
-    ySpan = maxY - minY
-
-    def quantizeCoordToMVT(x, y):
-        xq = int(round((x - minX) * MVT_EXTENT / xSpan))
-        # Downward inversion is performed in encoder
-        yq = int((round(y - minY) * MVT_EXTENT / ySpan))
-        return (xq, yq)
-
-    # Only simple types for now
-    if isinstance(geometry, Point):
-        coords = list(geometry.coords)
-        qcoords = quantizeCoordToMVT(coords[0][0], coords[0][1])
-        return Point(qcoords)
-    elif isinstance(geometry, LineString):
-        coords = list(geometry.coords) 
-        qcoords = []
-        for coord in coords[0]:
-            qcoords.append(quantizeCoordToMVT(coord[0], coord[1]))
-        return LineString(qcoords)
-    elif isinstance(geometry, Polygon):
-        coords = list(geometry.exterior.coords)
-        qcoords = []
-        for coord in coords[0]:
-            qcoords.append(quantizeCoordToMVT(coord[0], coord[1]))
-        return Polygon(qcoords)
-
-
 skippedTilesCounter = 0
 def createTile(tileSpec):
     fullPath = None
@@ -84,8 +48,8 @@ def createTile(tileSpec):
         for feature in query:
             properties = feature[0].getProperties()
             properties['id'] = feature[1].id
-            qgeometry = quantizeGeomToMVT(to_shape(feature[1]), tileBounds)
-            features.append(featureMVT(qgeometry, properties))
+            geometry = to_shape(feature[1])
+            features.append(featureMVT(geometry, properties))
         if len(features) > 0:
             path = '%s/%s/%s.pbf' %(zoomLevel, tileCol, tileRow)
             mvt = layerMVT(model.__bodId__, features)
