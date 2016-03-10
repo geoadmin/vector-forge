@@ -1,0 +1,27 @@
+{
+  "layerBodId": "ch.swisstopo.swissnames3d",
+  "tileSizePx": 256,
+  "minZoom": 10,
+  "maxZoom": 24,
+  "extent": null,
+  "lods": {
+    "10": "swissnames3d_raster_00",
+    "11": "swissnames3d_raster_00",
+    "12": "swissnames3d_raster_00",
+    "13": "swissnames3d_raster_00",
+    "14": "swissnames3d_raster_01",
+    "15": "swissnames3d_raster_02",
+    "16": "swissnames3d_raster_03",
+    "17": "swissnames3d_raster_04",
+    "18": "swissnames3d_raster_05",
+    "19": "swissnames3d_raster_06",
+    "20": "swissnames3d_raster_07",
+    "21": "swissnames3d_raster_08",
+    "22": "swissnames3d_raster_09",
+    "23": "swissnames3d_raster_10",
+    "24": "swissnames3d_raster_11",
+    "25": "swissnames3d_raster_12",
+    "26": "swissnames3d_raster_13"
+  }
+}
+

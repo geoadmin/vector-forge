@@ -42,7 +42,6 @@ skippedTilesCounter = 0
 
 
 def createTile(tileSpec):
-    fullPath = None
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
         if lods is not None:
@@ -107,6 +106,7 @@ def main():
     try:
         conf = parseJsonConf(sys.argv[1])
     except Exception as e:
+        print 'Error while parsing json file'
         raise Exception(e)
 
     global layerBodId
