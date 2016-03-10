@@ -12,6 +12,7 @@ from poolmanager import PoolManager
 from multiprocessing import Value
 
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.sql import func
 from geoalchemy2.shape import to_shape
 from vectorforge.models.stopo import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
@@ -58,6 +59,7 @@ def createTile(tileSpec):
         clippedGeometry = model.bboxClippedGeom(tileBounds)
         query = DBSession.query(model, clippedGeometry)
         query = query.filter(model.bboxIntersects(tileBounds))
+        query = query.filter(func.ST_GeometryType(model.the_geom) == 'ST_Point')
         features = []
         for feature in query:
             properties = feature[0].getProperties()
