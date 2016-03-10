@@ -44,6 +44,10 @@ skippedTilesCounter = 0
 def createTile(tileSpec):
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
+        basePath = '1.0.0/%s/21781/default/' % layerBodId
+        path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
+        fullPath = basePath + path
+
         if lods is not None:
             tablename = lods[str(zoomLevel)]
             model = getModelFromBodId(layerBodId, tablename=tablename)
@@ -51,7 +55,6 @@ def createTile(tileSpec):
             model = getModelFromBodId(layerBodId)
 
         DBSession = scoped_session(sessionmaker())
-        basePath = '1.0.0/%s/21781/default/' % layerBodId
         clippedGeometry = model.bboxClippedGeom(tileBounds)
         query = DBSession.query(model, clippedGeometry)
         query = query.filter(model.bboxIntersects(tileBounds))
@@ -62,7 +65,6 @@ def createTile(tileSpec):
             geometry = to_shape(feature[1])
             features.append(featureMVT(geometry, properties))
         if len(features) > 0:
-            path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             mvt = layerMVT(model.__bodId__, features)
             f = cStringIO.StringIO()
             f.write(mvt)
@@ -74,9 +76,8 @@ def createTile(tileSpec):
                 basePath,
                 contentType='application/x-protobuf',
                 contentEnc='gzip')
-            fullPath = basePath + path
     except Exception as e:
-        raise Exception(e)
+        raise Exception(str(e))
     finally:
         DBSession.close()
     return fullPath
@@ -122,7 +123,7 @@ def main():
     maxZoom = conf.get('maxZoom', 0)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-    pm = PoolManager(numProcs=2)
+    pm = PoolManager(numProcs=4)
     pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 
     # End of process
