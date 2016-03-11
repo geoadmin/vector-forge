@@ -71,6 +71,7 @@ class Swissnames3d:
     name = Column('name', Text)
     sprachcode = Column('sprachcode', Text)
     namen_typ = Column('namen_typ', Text)
+    bgdi_type = Column('bgdi_type', Text)
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
 

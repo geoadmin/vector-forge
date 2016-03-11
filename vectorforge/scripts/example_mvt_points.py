@@ -11,8 +11,8 @@ from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
 
+from sqlalchemy import text
 from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.sql import func
 from geoalchemy2.shape import to_shape
 from vectorforge.models.stopo import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
@@ -26,11 +26,11 @@ def featureMVT(geometry, properties):
     }
 
 
-def layerMVT(layerName, features):
+def layerMVT(layerName, features, bounds):
     return mapbox_vector_tile.encode({
         'name': layerName,
         'features': features
-    })
+    }, quantize_bounds=bounds)
 
 
 def parseJsonConf(pathToConf):
@@ -39,27 +39,44 @@ def parseJsonConf(pathToConf):
     return conf
 
 
+def createQueryFilter(filters, filterIndices, operatorFilter):
+    # Only ascii characters are supported
+    count = 0
+    txt = ''
+    for i in filterIndices:
+        fltr = filters[i]
+        count += 1
+        txt += fltr
+        if count < len(filterIndices):
+            txt += operatorFilter
+    return text(txt)
+
+
 skippedTilesCounter = 0
 
 
 def createTile(tileSpec):
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
-        basePath = '1.0.0/%s/21781/default/' % layerBodId
-        path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
-        fullPath = basePath + path
-
+        lod = tablename = filterindices = fullPath = None
         if lods is not None:
-            tablename = lods[str(zoomLevel)]
+            lod = lods[str(zoomLevel)]
+            tablename = lod.get('tablename')
+            filterIndices = lod.get('filterindices')
+            operatorFilter = lod.get('operatorfilter')
             model = getModelFromBodId(layerBodId, tablename=tablename)
         else:
             model = getModelFromBodId(layerBodId)
-
         DBSession = scoped_session(sessionmaker())
         clippedGeometry = model.bboxClippedGeom(tileBounds)
         query = DBSession.query(model, clippedGeometry)
         query = query.filter(model.bboxIntersects(tileBounds))
-        query = query.filter(func.ST_GeometryType(model.the_geom) == 'ST_Point')
+        if filters is not None:
+            query = query.filter(
+                createQueryFilter(
+                    filters,
+                    filterIndices,
+                    operatorFilter))
         features = []
         for feature in query:
             properties = feature[0].getProperties()
@@ -67,7 +84,10 @@ def createTile(tileSpec):
             geometry = to_shape(feature[1])
             features.append(featureMVT(geometry, properties))
         if len(features) > 0:
-            mvt = layerMVT(model.__bodId__, features)
+            basePath = '1.0.0/%s/21781/default/' % layerBodId
+            path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
+            fullPath = basePath + path
+            mvt = layerMVT(model.__bodId__, features, tileBounds)
             f = cStringIO.StringIO()
             f.write(mvt)
             writeToS3(
@@ -114,8 +134,10 @@ def main():
 
     global layerBodId
     global lods
+    global filters
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
+    filters = conf.get('filters')
 
     extent = conf.get('extent')
     tileSizePx = conf.get('tileSizePx', 256.0)
@@ -125,7 +147,7 @@ def main():
     maxZoom = conf.get('maxZoom', 0)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-    pm = PoolManager(numProcs=4)
+    pm = PoolManager()
     pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 
     # End of process
