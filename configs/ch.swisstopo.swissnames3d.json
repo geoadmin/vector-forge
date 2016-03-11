@@ -2,26 +2,94 @@
   "layerBodId": "ch.swisstopo.swissnames3d",
   "tileSizePx": 256,
   "minZoom": 10,
-  "maxZoom": 24,
+  "maxZoom": 26,
   "extent": null,
+  "filters": ["bgdi_type = 'point'"],
   "lods": {
-    "10": "swissnames3d_raster_00",
-    "11": "swissnames3d_raster_00",
-    "12": "swissnames3d_raster_00",
-    "13": "swissnames3d_raster_00",
-    "14": "swissnames3d_raster_01",
-    "15": "swissnames3d_raster_02",
-    "16": "swissnames3d_raster_03",
-    "17": "swissnames3d_raster_04",
-    "18": "swissnames3d_raster_05",
-    "19": "swissnames3d_raster_06",
-    "20": "swissnames3d_raster_07",
-    "21": "swissnames3d_raster_08",
-    "22": "swissnames3d_raster_09",
-    "23": "swissnames3d_raster_10",
-    "24": "swissnames3d_raster_11",
-    "25": "swissnames3d_raster_12",
-    "26": "swissnames3d_raster_13"
+    "10": {
+      "tablename": "swissnames3d_raster_00",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "11": {
+      "tablename": "swissnames3d_raster_00",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "12": {
+      "tablename": "swissnames3d_raster_00",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "13": {
+      "tablename": "swissnames3d_raster_00",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "14": {
+      "tablename": "swissnames3d_raster_01",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "swissnames3d_raster_02",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "swissnames3d_raster_03",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "swissnames3d_raster_04",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "swissnames3d_raster_05",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "swissnames3d_raster_06",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "swissnames3d_raster_07",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "swissnames3d_raster_08",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "swissnames3d_raster_09",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "swissnames3d_raster_10",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "24": {
+      "tablename": "swissnames3d_raster_11",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "25": {
+      "tablename": "swissnames3d_raster_12",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "26": {
+      "tablename": "swissnames3d_raster_13",
+      "filterindices": [0],
+      "operatorfilter": null
+    }
   }
 }
-
