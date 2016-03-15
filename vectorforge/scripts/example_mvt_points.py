@@ -52,25 +52,35 @@ def createQueryFilter(filters, filterIndices, operatorFilter):
     return text(txt)
 
 
+def extendBounds(b, d):
+    return [b[i] - d if i < 2 else b[i] + d for i in range(0, len(b))]
+
+
 skippedTilesCounter = 0
 
 
 def createTile(tileSpec):
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
-        lod = tablename = filterindices = fullPath = None
+        lod = tableName = filterIndices = fullPath = None
         if lods is not None:
             lod = lods[str(zoomLevel)]
-            tablename = lod.get('tablename')
+            tableName = lod.get('tablename')
             filterIndices = lod.get('filterindices')
             operatorFilter = lod.get('operatorfilter')
-            model = getModelFromBodId(layerBodId, tablename=tablename)
+            model = getModelFromBodId(layerBodId, tablename=tableName)
         else:
             model = getModelFromBodId(layerBodId)
+        bounds = tileBounds
+        # Apply buffer for points
+        if gutter:
+            buff = gagrid.getResolution(zoomLevel) * gutter
+            bounds = extendBounds(bounds, buff)
         DBSession = scoped_session(sessionmaker())
-        clippedGeometry = model.bboxClippedGeom(tileBounds)
+        clippedGeometry = model.bboxClippedGeom(bounds)
         query = DBSession.query(model, clippedGeometry)
-        query = query.filter(model.bboxIntersects(tileBounds))
+        query = query.filter(model.bboxIntersects(bounds))
+        # Apply filters
         if filters is not None:
             query = query.filter(
                 createQueryFilter(
@@ -84,7 +94,7 @@ def createTile(tileSpec):
             geometry = to_shape(feature[1])
             features.append(featureMVT(geometry, properties))
         if len(features) > 0:
-            basePath = '1.0.0/%s/21781/default/' % layerBodId
+            basePath = '2.1.0/%s/21781/default/current/' % layerBodId
             path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             fullPath = basePath + path
             mvt = layerMVT(model.__bodId__, features, tileBounds)
@@ -135,9 +145,13 @@ def main():
     global layerBodId
     global lods
     global filters
+    global gutter
+    global gagrid
+
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
     filters = conf.get('filters')
+    gutter = float(conf.get('gutter', 10))
 
     extent = conf.get('extent')
     tileSizePx = conf.get('tileSizePx', 256.0)
@@ -147,7 +161,7 @@ def main():
     maxZoom = conf.get('maxZoom', 0)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-    pm = PoolManager()
+    pm = PoolManager(factor=2)
     pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 
     # End of process
