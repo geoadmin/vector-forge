@@ -14,7 +14,7 @@ help:
 	@echo "- install            Install the app"
 	@echo "- template           Create templates"
 	@echo "- lint               Linter for python code"
-	@echo "- autolint						Autolint all python files"
+	@echo "- autolint           Autolint all python files"
 	@echo "- all                All of the above"
 	@echo "- dev                Enter dev shell"
 	@echo "- clean              Clean all generated files and folders"
@@ -38,7 +38,7 @@ install:
 	$(PYTHON_CMD) setup.py develop
 	npm install
 
-.PHONY: template	
+.PHONY: template
 template:
 	@ if [ -z "$$DEV_PORT" ]; then \
 		echo "ERROR: Environment variables for DEV_PORT is not set"; exit 2; \
