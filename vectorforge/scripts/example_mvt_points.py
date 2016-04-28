@@ -5,6 +5,7 @@ import time
 import datetime
 import sys
 import json
+import traceback
 import mapbox_vector_tile
 
 from gatilegrid import GeoadminTileGrid
@@ -58,7 +59,6 @@ def extendBounds(b, d):
 
 skippedTilesCounter = 0
 
-
 def createTile(tileSpec):
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
@@ -92,7 +92,10 @@ def createTile(tileSpec):
             properties = feature[0].getProperties()
             properties['id'] = feature[1].id
             geometry = to_shape(feature[1])
-            features.append(featureMVT(geometry, properties))
+            # Skip GeometryCollection for now
+            # Should be handled during data modelling or postgis
+            if not geometry.is_empty and geometry.type != 'GeometryCollection':
+                features.append(featureMVT(geometry, properties))
         if len(features) > 0:
             basePath = '2.1.0/%s/21781/default/current/' % layerBodId
             path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
@@ -109,9 +112,16 @@ def createTile(tileSpec):
                 contentType='application/x-protobuf',
                 contentEnc='gzip')
     except Exception as e:
+        if debug:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=10, file=sys.stdout)
         raise Exception(str(e))
     finally:
         DBSession.close()
+        if debug:
+            debugCounter.value += 1
+            callback(debugCounter.value, fullPath)
+
     return fullPath
 
 
@@ -133,20 +143,30 @@ def callback(counter, fullPath):
 
 
 def main():
-    if len(sys.argv) != 2:
+    global layerBodId
+    global lods
+    global filters
+    global gutter
+    global gagrid
+    global debug
+
+    if len(sys.argv) < 2:
         print 'Please provide a json configuration. Exit.'
         sys.exit(1)
+
+    if len(sys.argv) == 3:
+        print 'Multiprocessing disabled: running in debug mode'
+        debug = True
+    else:
+        print 'Multiprocessing enabled'
+        debug = False
+
     try:
         conf = parseJsonConf(sys.argv[1])
     except Exception as e:
         print 'Error while parsing json file'
         raise Exception(e)
 
-    global layerBodId
-    global lods
-    global filters
-    global gutter
-    global gagrid
 
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
@@ -161,8 +181,11 @@ def main():
     maxZoom = conf.get('maxZoom', 0)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
-    pm = PoolManager(factor=2)
-    pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
+    if debug:
+        map(createTile, tileGrid)
+    else:
+        pm = PoolManager(factor=2)
+        pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
 
     # End of process
     t3 = time.time()
@@ -174,6 +197,7 @@ def main():
 if __name__ == '__main__':
     t0 = time.time()
     skippedTiles = Value('i', 0)
+    debugCounter = Value('i', 0)
     # Boto is thread safe
     conn = s3Connect('ltgal_aws_admin')
     bucket = getBucket(conn)

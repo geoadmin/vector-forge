@@ -26,3 +26,9 @@ Serve your web app:
 Activate virtualenv:
 
     $ source venv/bin/activate
+
+#### Personal notes:
+
+18, 13, 13
+ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill
+[586400.0, 170800.0, 599200.0, 183600.0]
