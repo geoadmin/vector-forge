@@ -1,0 +1,10 @@
+{
+  "layerBodId": "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill",
+  "tileSizePx": 256,
+  "minZoom": 8,
+  "maxZoom": 26,
+  "gutter": 20,
+  "extent": null,
+  "filters": null,
+  "lods": null
+}
