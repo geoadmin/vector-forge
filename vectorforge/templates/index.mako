@@ -10,6 +10,9 @@
 
   <body>
     <h2>Demo page for vector tiles</h2>
+    <h3>Codepens</h3>
+    <a href="http://codepen.io/loicgasser/pen/reLZWL">MVT Points</a>
+    <a href="http://codepen.io/loicgasser/pen/PNypEY">MVT Multi polygons</a>
     <h3>WMTS demo</h3>
     <a href="../../static/examples/basicmap">Pure Ol3 WMTS example</a>
     <h3>Vector tiles demo</h3>
