@@ -1,4 +1,5 @@
 VENV = .venv
+DEV_PORT ?= 9040
 PYTHON_CMD = $(VENV)/bin/python
 PYFLAKES_CMD = $(VENV)/bin/pyflakes
 AUTOPEP8_CMD = $(VENV)/bin/autopep8
@@ -40,7 +41,7 @@ install:
 
 .PHONY: template
 template:
-	@ if [ -z "$$DEV_PORT" ]; then \
+	@ if [ -z "$(DEV_PORT)" ]; then \
 		echo "ERROR: Environment variables for DEV_PORT is not set"; exit 2; \
 	else true; fi
 	sed -e 's/$$DEV_PORT/$(DEV_PORT)/' development.ini.in > development.ini
