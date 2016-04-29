@@ -76,30 +76,39 @@ def createTile(tileSpec):
 
     def clippedMultiPolygons():
 
-        sub = DBSession.query(
-            model.the_geom.label('sub_geoms'),
-            *model.propertyColumns(includePkey=True)).\
-                filter(model.bboxIntersects(bounds)).subquery()
+        #sub = DBSession.query(
+        #    model.the_geom.label('sub_geoms'),
+        #    *model.propertyColumns(includePkey=True)).\
+        #        filter(model.bboxIntersects(bounds)).subquery()
         query = DBSession.query(
             func.ST_AsEWKB(
                 func.ST_Multi(
-                    func.ST_Buffer(model.bboxClippedGeom(
-                        bounds, geomcolumn=sub.c.sub_geoms), 0.0))).label('clipped_geom'),
-            *[sub.c[k] for k in sub.c.keys()])
+        #            func.ST_Buffer(model.bboxClippedGeom(
+        #                bounds, geomcolumn=sub.c.sub_geoms), 0.0))).label('clipped_geom'),
+        #    *[sub.c[k] for k in sub.c.keys()])
+                    func.ST_Buffer(
+                        model.bboxClippedGeom(bounds), 0.0)
+                    )).label('clipped_geom'),
+            *model.propertyColumns(includePkey=True))
+        query = query.\
+            filter(
+                model.bboxIntersects(bounds))
         query = query.\
             filter(
                 not_(
                     func.ST_IsEmpty(
                         func.ST_Buffer(
-                            model.bboxClippedGeom(bounds), 0.0))))
-
+                            model.bboxClippedGeom(bounds), 0.0)
+                        )))
         query = applyQueryFilters(query, filterIndices, operatorFilter)
+
         propsKeys = model.getPropertiesKeys()
         for feature in query:
             properties = {}
             for propKey in propsKeys:
                 properties[propKey] = getattr(feature, propKey)
-            geometry = to_shape(WKBElement(buffer(feature.clipped_geom), srid=21781))
+            geometry = to_shape(
+                WKBElement(buffer(feature.clipped_geom), srid=21781))
             yield featureMVT(geometry, properties)
 
 
