@@ -142,7 +142,8 @@ def createTile(tileSpec):
             buff = gagrid.getResolution(zoomLevel) * gutter
             bounds = extendBounds(bounds, buff)
 
-        geometryType = model.the_geom.geometry_type
+        geometryColumn = model.geometryColumn()
+        geometryType = geometryColumn.type.geometry_type
         spatialQuery = queryPerGeometryType[geometryType]
 
         DBSession = scoped_session(sessionmaker())

@@ -12,7 +12,7 @@ if bases.get('stopo_int') is None:
 Base = bases.get('stopo_int')
 
 
-# Points
+# Multi Points
 class Vec200Namedlocation(Base, Vector):
     __tablename__ = 'vec200_namedlocation'
     __table_args__ = ({'autoload': False})
@@ -21,12 +21,12 @@ class Vec200Namedlocation(Base, Vector):
     objname1 = Column('objname1', Text)
     objname2 = Column('objname2', Text)
     altitude = Column('altitude', Integer)
-    the_geom = Column(Geometry(geometry_type='GEOMETRY',
+    the_geom = Column(Geometry(geometry_type='MULTIPOINT',
                                dimension=2, srid=21781))
 
 register('ch.swisstopo.vec200-names-namedlocation', Vec200Namedlocation)
 
-# Lines
+# Multi Lines
 
 
 class Vec25Strassennetz(Base, Vector):
@@ -37,12 +37,12 @@ class Vec25Strassennetz(Base, Vector):
     length = Column('length', Numeric)
     yearofchan = Column('yearofchan', Float)
     objectval = Column('objectval', Text)
-    the_geom = Column(Geometry(geometry_type='GEOMETRY',
+    the_geom = Column(Geometry(geometry_type='MULTILINESTRING',
                                dimension=2, srid=21781))
 
 register('ch.swisstopo.vec25-strassennetz', Vec25Strassennetz)
 
-# Polygons
+# Multi Polygons
 
 
 class SwissboundariesGemeinde(Base, Vector):
@@ -54,7 +54,7 @@ class SwissboundariesGemeinde(Base, Vector):
     gemflaeche = Column('gemflaeche', Numeric)
     perimeter = Column('perimeter', Numeric)
     kanton = Column('kanton', Text)
-    the_geom = Column(Geometry(geometry_type='GEOMETRY',
+    the_geom = Column(Geometry(geometry_type='MULTIPOLYGON',
                                dimension=2, srid=21781))
 
 register(
