@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2.elements import WKBElement
+from geoalchemy2.types import Geometry
 from shapely.geometry import box
 
 # Defined here to be called from outside the web app
@@ -79,17 +80,22 @@ class Vector(object):
     """
     Returns a sqlalchemy.sql.functions.Function clipping function
     :param bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
+    :params geomcolumn: Another geometry column (or expression) than the one defined on the childe model.
     """
     @classmethod
-    def bboxClippedGeom(cls, bbox, srid=21781, extended=False):
+    def bboxClippedGeom(cls, bbox, srid=21781, extended=False, geomcolumn=None):
         bboxGeom = shapelyBBox(bbox)
         wkbGeometry = WKBElement(
             buffer(
                 bboxGeom.wkb),
             srid=srid,
             extended=extended)
-        geomColumn = cls.geometryColumn()
+        if geomcolumn is None:
+            geomColumn = cls.geometryColumn()
+        else:
+            geomColumn = geomcolumn
         return func.ST_Intersection(geomColumn, wkbGeometry)
+
 
     """
     Returns a slqalchemy.sql.functions.Function interesects function
@@ -117,19 +123,33 @@ class Vector(object):
         geomColumn = cls.geometryColumn()
         return func.ST_AsEWKB(func.ST_LineMerge(geomColumn))
 
-    def getProperties(self):
+    @classmethod
+    def propertyColumns(cls, includePkey=False):
+        columns = []
+        for c in cls.__mapper__.columns:
+            isPrimarykey = c.primary_key
+            isGeometry = isinstance(c.type, Geometry)
+            if (isPrimarykey and includePkey) or (not isPrimarykey and not isGeometry):
+                columns.append(c)
+        return columns
+
+    @classmethod
+    def getPropertiesKeys(cls, includePkey=False):
+        columns = cls.propertyColumns(includePkey=includePkey)
+        return [c.key for c in columns]
+
+    def getProperties(self, includePkey=False):
         """
         Expose all that is not an id and a geometry
         """
         properties = {}
-        for column in self.__table__.columns:
-            isPrimaryKey = bool(self.primaryKeyColumn() == column)
-            isGeometry = bool(self.geometryColumn() == column)
-            if not isPrimaryKey and not isGeometry:
+        for c in self.__table__.columns:
+            isPrimaryKey = c.primary_key
+            isGeometry = isinstance(c.type, Geometry)
+            if (isPrimaryKey and includePkey) or (not isPrimaryKey and not isGeometry):
                 # As mapped on the model
-                propertyName = self.__mapper__.get_property_by_column(
-                    column).key
-                propertyValue = getattr(self, column.name)
+                propertyName = self.__mapper__.get_property_by_column(c).key
+                propertyValue = getattr(self, c.name)
                 properties[propertyName] = formatPropertyValue(propertyValue)
         return properties
 

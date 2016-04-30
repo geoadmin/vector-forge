@@ -12,9 +12,11 @@ from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
 
-from sqlalchemy import text
+from sqlalchemy import text, not_
+from sqlalchemy.sql import func
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
+from geoalchemy2.elements import WKBElement
 from vectorforge.models.stopo import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, writeToS3
@@ -57,17 +59,89 @@ def extendBounds(b, d):
     return [b[i] - d if i < 2 else b[i] + d for i in range(0, len(b))]
 
 
+def applyQueryFilters(query, filterIndices, operatorFilter):
+    # Apply custom filters
+    if filters is not None:
+        query = query.filter(
+            createQueryFilter(
+                filters,
+                filterIndices,
+                operatorFilter))
+    return query
+
+
 skippedTilesCounter = 0
 
 def createTile(tileSpec):
+
+    def clippedMultiPolygons():
+
+        #sub = DBSession.query(
+        #    model.the_geom.label('sub_geoms'),
+        #    *model.propertyColumns(includePkey=True)).\
+        #        filter(model.bboxIntersects(bounds)).subquery()
+        query = DBSession.query(
+            func.ST_AsEWKB(
+                func.ST_Multi(
+        #            func.ST_Buffer(model.bboxClippedGeom(
+        #                bounds, geomcolumn=sub.c.sub_geoms), 0.0))).label('clipped_geom'),
+        #    *[sub.c[k] for k in sub.c.keys()])
+                    func.ST_Buffer(
+                        model.bboxClippedGeom(bounds), 0.0)
+                    )).label('clipped_geom'),
+            *model.propertyColumns(includePkey=True))
+        query = query.\
+            filter(
+                model.bboxIntersects(bounds))
+        query = query.\
+            filter(
+                not_(
+                    func.ST_IsEmpty(
+                        func.ST_Buffer(
+                            model.bboxClippedGeom(bounds), 0.0)
+                        )))
+        query = applyQueryFilters(query, filterIndices, operatorFilter)
+
+        propsKeys = model.getPropertiesKeys()
+        for feature in query:
+            properties = {}
+            for propKey in propsKeys:
+                properties[propKey] = getattr(feature, propKey)
+            geometry = to_shape(
+                WKBElement(buffer(feature.clipped_geom), srid=21781))
+            yield featureMVT(geometry, properties)
+
+
+    def clippedSimpleShape():
+        clippedGeometry = model.bboxClippedGeom(bounds)
+        query = DBSession.query(model, clippedGeometry)
+        query = query.filter(model.bboxIntersects(bounds))
+        query = applyQueryFilters(query, filterIndices, operatorFilter)
+        for feature in query:
+            properties = feature[0].getProperties()
+            properties['id'] = feature[1].id
+            geometry = to_shape(feature[1])
+            yield featureMVT(geometry, properties)
+
+    queryPerGeometryType = {
+        'POINT': clippedSimpleShape,
+        'MULTIPOINT': clippedSimpleShape,
+        'LINESTRING': clippedSimpleShape,
+        'MULTILINESTRING': None, # No support yet
+        'POLYGON': clippedSimpleShape,
+        'MULTIPOLYGON': clippedMultiPolygons,
+        'GEOMETRYCOLLECTION': None, # No support yet
+        'CURVE': None # No support yet
+    }
+
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
-        lod = tableName = filterIndices = fullPath = None
+        lod = tableName = filterIndices = operatorFilter = fullPath = None
         if lods is not None:
             lod = lods[str(zoomLevel)]
-            tableName = lod.get('tablename')
             filterIndices = lod.get('filterindices')
             operatorFilter = lod.get('operatorfilter')
+            tableName = lod.get('tablename')
             model = getModelFromBodId(layerBodId, tablename=tableName)
         else:
             model = getModelFromBodId(layerBodId)
@@ -76,28 +150,17 @@ def createTile(tileSpec):
         if gutter:
             buff = gagrid.getResolution(zoomLevel) * gutter
             bounds = extendBounds(bounds, buff)
+
+        geometryColumn = model.geometryColumn()
+        geometryType = geometryColumn.type.geometry_type
+        spatialQuery = queryPerGeometryType[geometryType]
+
         DBSession = scoped_session(sessionmaker())
-        clippedGeometry = model.bboxClippedGeom(bounds)
-        query = DBSession.query(model, clippedGeometry)
-        query = query.filter(model.bboxIntersects(bounds))
-        # Apply filters
-        if filters is not None:
-            query = query.filter(
-                createQueryFilter(
-                    filters,
-                    filterIndices,
-                    operatorFilter))
         features = []
-        for feature in query:
-            properties = feature[0].getProperties()
-            properties['id'] = feature[1].id
-            geometry = to_shape(feature[1])
-            # Skip GeometryCollection for now
-            # Should be handled during data modelling or postgis
-            if not geometry.is_empty and geometry.type != 'GeometryCollection':
-                features.append(featureMVT(geometry, properties))
+        for feat in spatialQuery():
+            features.append(feat)
         if len(features) > 0:
-            basePath = '2.1.0/%s/21781/default/current/' % layerBodId
+            basePath = '2.1.1/%s/21781/default/current/' % layerBodId
             path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             fullPath = basePath + path
             mvt = layerMVT(model.__bodId__, features, tileBounds)
@@ -112,6 +175,7 @@ def createTile(tileSpec):
                 contentType='application/x-protobuf',
                 contentEnc='gzip')
     except Exception as e:
+        print 'Failed during the creation of tile %s' % fullPath
         if debug:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=10, file=sys.stdout)
@@ -130,7 +194,7 @@ def callback(counter, fullPath):
         with skippedTiles.get_lock():
             skippedTiles.value += 1
 
-    if counter % 1000 == 0:
+    if counter % 200 == 0:
         t1 = time.time()
         ti = t1 - t0
         if fullPath:
@@ -170,7 +234,7 @@ def main():
 
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
-    filters = conf.get('filters')
+    filters = conf.get('filters', [])
     gutter = float(conf.get('gutter', 10))
 
     extent = conf.get('extent')
@@ -178,7 +242,7 @@ def main():
     gagrid = GeoadminTileGrid(extent=extent, tileSizePx=float(tileSizePx))
 
     minZoom = conf.get('minZoom', 0)
-    maxZoom = conf.get('maxZoom', 0)
+    maxZoom = conf.get('maxZoom', 26)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
     if debug:
