@@ -234,7 +234,7 @@ def main():
 
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
-    filters = conf.get('filters')
+    filters = conf.get('filters', [])
     gutter = float(conf.get('gutter', 10))
 
     extent = conf.get('extent')
@@ -242,7 +242,7 @@ def main():
     gagrid = GeoadminTileGrid(extent=extent, tileSizePx=float(tileSizePx))
 
     minZoom = conf.get('minZoom', 0)
-    maxZoom = conf.get('maxZoom', 0)
+    maxZoom = conf.get('maxZoom', 26)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
     if debug:
