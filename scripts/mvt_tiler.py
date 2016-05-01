@@ -106,7 +106,11 @@ def createTile(tileSpec):
         for feature in query:
             properties = {}
             for propKey in propsKeys:
-                properties[propKey] = getattr(feature, propKey)
+                prop = properties[propKey] = getattr(feature, propKey)
+                if hasattr(prop, '__float__'):
+                    prop = prop.__float__()
+                    if prop % 1 == 0.0:
+                        properties[propKey] = properties[propKey].__int__()
             geometry = to_shape(
                 WKBElement(buffer(feature.clipped_geom), srid=21781))
             yield featureMVT(geometry, properties)
