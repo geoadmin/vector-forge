@@ -113,7 +113,7 @@ def createTile(tileSpec):
         'POINT': clippedSimpleShape,
         'MULTIPOINT': clippedSimpleShape,
         'LINESTRING': clippedSimpleShape,
-        'MULTILINESTRING': clippedMultiShape, # No support yet
+        'MULTILINESTRING': clippedMultiShape,
         'POLYGON': clippedSimpleShape,
         'MULTIPOLYGON': clippedMultiShape,
         'GEOMETRYCOLLECTION': None, # No support yet
@@ -121,9 +121,14 @@ def createTile(tileSpec):
     }
 
     geometryDimension = {
+        'POINT': 0,
         'MULTIPOINT': 0,
+        'LINESTRING': 1,
         'MULTILINESTRING': 1,
-        'MULTIPOLYGON': 2
+        'POLYGON': 2,
+        'MULTIPOLYGON': 2,
+        'GEOMETRYCOLLECTION': None, # No support yet
+        'CURVE': None # No support yet
     }
 
     try:
