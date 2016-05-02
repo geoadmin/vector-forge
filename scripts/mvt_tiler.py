@@ -74,35 +74,19 @@ skippedTilesCounter = 0
 
 def createTile(tileSpec):
 
-    def clippedMultiPolygons():
-
-        #sub = DBSession.query(
-        #    model.the_geom.label('sub_geoms'),
-        #    *model.propertyColumns(includePkey=True)).\
-        #        filter(model.bboxIntersects(bounds)).subquery()
+    def clippedMultiShape():
+        clipped = model.bboxIntersects(bounds).label('clipped')
+        clippedGeoms = model.bboxClippedGeom(bounds)
+        sub = DBSession.query(
+            (func.ST_Dump(clippedGeoms)).geom.label('clipped_geom'),
+            *model.propertyColumns(includePkey=True)).\
+                filter(clipped).subquery()
         query = DBSession.query(
-            func.ST_AsEWKB(
-                func.ST_Multi(
-        #            func.ST_Buffer(model.bboxClippedGeom(
-        #                bounds, geomcolumn=sub.c.sub_geoms), 0.0))).label('clipped_geom'),
-        #    *[sub.c[k] for k in sub.c.keys()])
-                    func.ST_Buffer(
-                        model.bboxClippedGeom(bounds), 0.0)
-                    )).label('clipped_geom'),
-            *model.propertyColumns(includePkey=True))
-        query = query.\
-            filter(
-                model.bboxIntersects(bounds))
-        query = query.\
-            filter(
-                not_(
-                    func.ST_IsEmpty(
-                        func.ST_Buffer(
-                            model.bboxClippedGeom(bounds), 0.0)
-                        )))
+            sub.c.clipped_geom,
+            *[sub.c[k] for k in sub.c.keys()]).\
+                filter(func.ST_Dimension(sub.c.clipped_geom) == geometryDim)
         query = applyQueryFilters(query, filterIndices, operatorFilter)
-
-        propsKeys = model.getPropertiesKeys()
+        propsKeys = model.getPropertiesKeys(includePkey=True)
         for feature in query:
             properties = {}
             for propKey in propsKeys:
@@ -111,8 +95,7 @@ def createTile(tileSpec):
                     prop = prop.__float__()
                     if prop % 1 == 0.0:
                         properties[propKey] = properties[propKey].__int__()
-            geometry = to_shape(
-                WKBElement(buffer(feature.clipped_geom), srid=21781))
+            geometry = to_shape(feature.clipped_geom)
             yield featureMVT(geometry, properties)
 
 
@@ -122,8 +105,7 @@ def createTile(tileSpec):
         query = query.filter(model.bboxIntersects(bounds))
         query = applyQueryFilters(query, filterIndices, operatorFilter)
         for feature in query:
-            properties = feature[0].getProperties()
-            properties['id'] = feature[1].id
+            properties = feature[0].getProperties(includePkey=True)
             geometry = to_shape(feature[1])
             yield featureMVT(geometry, properties)
 
@@ -131,11 +113,17 @@ def createTile(tileSpec):
         'POINT': clippedSimpleShape,
         'MULTIPOINT': clippedSimpleShape,
         'LINESTRING': clippedSimpleShape,
-        'MULTILINESTRING': None, # No support yet
+        'MULTILINESTRING': clippedMultiShape, # No support yet
         'POLYGON': clippedSimpleShape,
-        'MULTIPOLYGON': clippedMultiPolygons,
+        'MULTIPOLYGON': clippedMultiShape,
         'GEOMETRYCOLLECTION': None, # No support yet
         'CURVE': None # No support yet
+    }
+
+    geometryDimension = {
+        'MULTIPOINT': 0,
+        'MULTILINESTRING': 1,
+        'MULTIPOLYGON': 2
     }
 
     try:
@@ -157,6 +145,7 @@ def createTile(tileSpec):
 
         geometryColumn = model.geometryColumn()
         geometryType = geometryColumn.type.geometry_type
+        geometryDim = geometryDimension[geometryType]
         spatialQuery = queryPerGeometryType[geometryType]
 
         DBSession = scoped_session(sessionmaker())
@@ -164,7 +153,7 @@ def createTile(tileSpec):
         for feat in spatialQuery():
             features.append(feat)
         if len(features) > 0:
-            basePath = '2.1.1/%s/21781/default/current/' % layerBodId
+            basePath = '2.1.0/%s/21781/default/current/' % layerBodId
             path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
             fullPath = basePath + path
             mvt = layerMVT(model.__bodId__, features, tileBounds)
