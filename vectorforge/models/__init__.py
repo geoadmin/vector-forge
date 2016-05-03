@@ -12,7 +12,7 @@ from shapely.geometry import box
 # Defined here to be called from outside the web app
 dbhost = 'pg-sandbox.bgdi.ch'
 dbport = '5432'
-dbs = ['bod_int', 'stopo_int']
+dbs = ['bod_int', 'stopo_master']
 
 
 class Engines(object):
@@ -83,7 +83,12 @@ class Vector(object):
     :params geomcolumn: Another geometry column (or expression) than the one defined on the childe model.
     """
     @classmethod
-    def bboxClippedGeom(cls, bbox, srid=21781, extended=False, geomcolumn=None):
+    def bboxClippedGeom(
+            cls,
+            bbox,
+            srid=21781,
+            extended=False,
+            geomcolumn=None):
         bboxGeom = shapelyBBox(bbox)
         wkbGeometry = WKBElement(
             buffer(
@@ -95,7 +100,6 @@ class Vector(object):
         else:
             geomColumn = geomcolumn
         return func.ST_Intersection(geomColumn, wkbGeometry)
-
 
     """
     Returns a slqalchemy.sql.functions.Function interesects function
@@ -129,7 +133,8 @@ class Vector(object):
         for c in cls.__mapper__.columns:
             isPrimarykey = c.primary_key
             isGeometry = isinstance(c.type, Geometry)
-            if (isPrimarykey and includePkey) or (not isPrimarykey and not isGeometry):
+            if (isPrimarykey and includePkey) or (
+                    not isPrimarykey and not isGeometry):
                 columns.append(c)
         return columns
 
@@ -146,7 +151,8 @@ class Vector(object):
         for c in self.__table__.columns:
             isPrimaryKey = c.primary_key
             isGeometry = isinstance(c.type, Geometry)
-            if (isPrimaryKey and includePkey) or (not isPrimaryKey and not isGeometry):
+            if (isPrimaryKey and includePkey) or (
+                    not isPrimaryKey and not isGeometry):
                 # As mapped on the model
                 propertyName = self.__mapper__.get_property_by_column(c).key
                 propertyValue = getattr(self, c.name)
