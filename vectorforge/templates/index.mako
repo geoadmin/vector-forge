@@ -13,11 +13,8 @@
     <h3>Codepens</h3>
     <a href="http://codepen.io/loicgasser/pen/reLZWL">MVT Points</a>
     <a href="http://codepen.io/loicgasser/pen/PNypEY">MVT Multi polygons</a>
+    <a href="http://codepen.io/loicgasser/pen/YqRMaj">MVT Bodenbedeckung with many complex multipolygons no simplification (Please don't zoom out :) )
     <h3>WMTS demo</h3>
     <a href="../../static/examples/basicmap">Pure Ol3 WMTS example</a>
-    <h3>Vector tiles demo</h3>
-    <a href="../../static/examples/geojsonpoints">Pre-generated regular tiles of geojson points</a>
-    <br>
-    <a href="../../static/examples/topojsonlines">Pre-genertated regular tiles of simplified and quantized topojson lines</a>
   </body>
 </html>
