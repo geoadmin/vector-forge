@@ -7,9 +7,9 @@ from geoalchemy2.types import Geometry
 from vectorforge.models import init, bases, register, Vector, layers
 
 
-if bases.get('stopo_master') is None:
+if bases.get('stopo') is None:
     init()
-Base = bases.get('stopo_master')
+Base = bases.get('stopo')
 
 GeomMultiPoint = Geometry(
         geometry_type='MULTIPOINT',

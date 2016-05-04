@@ -12,7 +12,7 @@ from shapely.geometry import box
 # Defined here to be called from outside the web app
 dbhost = 'pg-sandbox.bgdi.ch'
 dbport = '5432'
-dbs = ['bod_int', 'stopo_master']
+dbs = ['bod_int', 'stopo_tileforge_master']
 
 
 class Engines(object):
@@ -27,7 +27,8 @@ class Engines(object):
             return None
 
     def add(self, engine, dbname):
-        self.engines[dbname] = engine
+        name = dbname.split('_')[0]
+        self.engines[name] = engine
 
 
 class Bases(object):
@@ -42,9 +43,10 @@ class Bases(object):
             return None
 
     def add(self, engine, dbname):
+        name = dbname.split('_')[0]
         base = declarative_base()
         base.metadata.bind = engine
-        self.bases[dbname] = base
+        self.bases[name] = base
 
 engines = Engines()
 bases = Bases()
