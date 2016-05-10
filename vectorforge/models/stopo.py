@@ -7,12 +7,26 @@ from geoalchemy2.types import Geometry
 from vectorforge.models import init, bases, register, Vector, layers
 
 
-if bases.get('stopo_int') is None:
+if bases.get('stopo') is None:
     init()
-Base = bases.get('stopo_int')
+Base = bases.get('stopo')
 
+GeomMultiPoint = Geometry(
+        geometry_type='MULTIPOINT',
+        dimension=2,
+        srid=21781)
+GeomMultiLinestring = Geometry(
+        geometry_type='MULTILINESTRING',
+        dimension=2,
+        srid=21781)
+GeomMultiPolygon = Geometry(
+        geometry_type='MULTIPOLYGON',
+        dimension=2,
+        srid=21781)
 
 # Multi Points
+
+
 class Vec200Namedlocation(Base, Vector):
     __tablename__ = 'vec200_namedlocation'
     __table_args__ = ({'autoload': False})
@@ -21,8 +35,7 @@ class Vec200Namedlocation(Base, Vector):
     objname1 = Column('objname1', Text)
     objname2 = Column('objname2', Text)
     altitude = Column('altitude', Integer)
-    the_geom = Column(Geometry(geometry_type='MULTIPOINT',
-                               dimension=2, srid=21781))
+    the_geom = Column(GeomMultiPoint)
 
 register('ch.swisstopo.vec200-names-namedlocation', Vec200Namedlocation)
 
@@ -37,8 +50,7 @@ class Vec25Strassennetz(Base, Vector):
     length = Column('length', Numeric)
     yearofchan = Column('yearofchan', Float)
     objectval = Column('objectval', Text)
-    the_geom = Column(Geometry(geometry_type='MULTILINESTRING',
-                               dimension=2, srid=21781))
+    the_geom = Column(GeomMultiLinestring)
 
 register('ch.swisstopo.vec25-strassennetz', Vec25Strassennetz)
 
@@ -54,12 +66,95 @@ class SwissboundariesGemeinde(Base, Vector):
     gemflaeche = Column('gemflaeche', Numeric)
     perimeter = Column('perimeter', Numeric)
     kanton = Column('kanton', Text)
-    the_geom = Column(Geometry(geometry_type='MULTIPOLYGON',
-                               dimension=2, srid=21781))
+    the_geom = Column(GeomMultiPolygon)
 
 register(
     'ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill',
     SwissboundariesGemeinde)
+
+# Carto layers
+
+
+class CartoBodenbedeckung(Base, Vector):
+    __tablename__ = 'dkm10_bodenbedeckung'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_bodenbedeckung'
+    id = Column('objectid', Integer, primary_key=True)
+    objektart = Column('objektart', Integer)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiPolygon)
+
+register('dkm10_bodenbedeckung', CartoBodenbedeckung)
+
+
+class CartoHoheitsgrenze(Base, Vector):
+    __tablename__ = 'dkm10_hoheitsgrenze'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_hoheitsgrenze'
+    id = Column('objectid', Integer, primary_key=True)
+    objekart = Column('objektart', Integer)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiLinestring)
+
+register('dkm10_hoheitsgrenze', CartoHoheitsgrenze)
+
+
+class CartoGewaesserLin(Base, Vector):
+    __tablename__ = 'dkm10_gewaesser_lin'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_gewaesser_lin'
+    id = Column('objectid', Integer, primary_key=True)
+    objekart = Column('objektart', Integer)
+    name = Column('name', Text)
+    verlauf = Column('verlauf', Integer)
+    lb = Column('lb', Float)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiLinestring)
+
+register('dkm10_gewaesser_lin', CartoGewaesserLin)
+
+
+class CartoGewaesserPly(Base, Vector):
+    __tablename__ = 'dkm10_gewaesser_ply'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_gewaesser_ply'
+    id = Column('objectid', Integer, primary_key=True)
+    objekart = Column('objektart', Integer)
+    name = Column('name', Text)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiPolygon)
+
+register('dkm10_gewaesser_ply', CartoGewaesserPly)
+
+
+class CartoSiedlungsname(Base, Vector):
+    __tablename__ = 'dkm10_siedlungsname'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_siedlungsname'
+    id = Column('objectid', Integer, primary_key=True)
+    objekart = Column('objektart', Integer)
+    name = Column('name', Text)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiPolygon)
+
+register('dkm10_siedlungsname', CartoSiedlungsname)
+
+
+class CartoSiedlungsnameAnno(Base, Vector):
+    __tablename__ = 'dkm10_siedlungsname_anno'
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    __bodId__ = 'dkm10_siedlungsname_anno'
+    id = Column('objectid', Integer, primary_key=True)
+    annotationclassid = Column('annotationclassid', Integer)
+    textstring = Column('textstring', Text)
+    fontsize = Column('fontsize', Integer)
+    bold = Column('bold', Integer)
+    italic = Column('italic', Integer)
+    the_geom = Column(GeomMultiPolygon)
+
+register('dkm10_siedlungsname_anno', CartoSiedlungsnameAnno)
+
+# Swissnames only
 
 
 class Swissnames3d:
