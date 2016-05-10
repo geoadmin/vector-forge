@@ -8,6 +8,10 @@ This repo is a sandbox where tests are performed.
 
 ## Getting started
 
+Add your AWS access key in `.boto`.
+
+Add your Database username and password in `.pgpass`
+
 Create your own `rc` file:
 
     $ cp rc_ltgal rc_{username}
@@ -28,11 +32,30 @@ Activate virtualenv:
     $ source venv/bin/activate
 
 
+## Create a new Mapbox vector tiled layer
+
+First start by defining your model in `vectorforge/models/${dbname}.py`.
+
+Check your styling code using:
+
+```
+make lint
+```
+
+Create a json config file `config/${layerBodId}.json`.
+
+Launch a new tile generation using:
+
+```
+${PYTHON_VENV} scripts/mvt_tiler.py ${path_to_config} ${debug}
+```
+
+If debug parameter is provided, then multiprocessing is disabled.
+
+
 ## Configuration of a new layer
 
-First start by defining your model in `vectorforge/models/{dbname}.py`.
-
-Create a json config file `config/{layerBodId}.json`.
+Create a json config file `config/${layerBodId}.json`.
 
 
 | Attribute                   | Description                                            | Default                                 |
@@ -151,3 +174,15 @@ Create a json config file `config/{layerBodId}.json`.
   }
 }
 ```
+
+
+## Simplification and generalization
+
+Polygons with topology preserving simplification based on:
+
+https://trac.osgeo.org/postgis/wiki/UsersWikiSimplifyPreserveTopology
+
+Which in turn uses heavily:
+
+http://postgis.net/docs/ST_SimplifyPreserveTopology.html
+
