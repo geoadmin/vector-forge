@@ -74,16 +74,23 @@ skippedTilesCounter = 0
 
 def createTile(tileSpec):
 
+    def simplifyGeom(geomDef, simplifyTol, simplifyType):
+        if simplifyTol and simplifyType:
+            return func.ST_AsEWKB(func.ST_Simplify(geomDef, simplifyTol))
+        return geomDef
+
     def clippedMultiShape():
-        clipped = model.bboxIntersects(bounds).label('clipped')
-        clippedGeoms = model.bboxClippedGeom(bounds)
+        clipped = model.bboxIntersects(
+            bounds).label('clipped')
+        clippedGeoms = model.bboxClippedGeom(
+            bounds, geomcolumn=geometryColumnToReturn)
         sub = DBSession.query(
             (func.ST_Dump(clippedGeoms)).geom.label('clipped_geom'),
             *model.propertyColumns(includePkey=True)).\
                 filter(clipped).subquery()
         query = DBSession.query(
-            sub.c.clipped_geom,
-            *[sub.c[k] for k in sub.c.keys()]).\
+            simplifyGeom(sub.c.clipped_geom, simplify, simplifyType).label('final_geom'),
+            *[sub.c[k] for k in sub.c.keys() if k != 'clipped_geom']).\
                 filter(func.ST_Dimension(sub.c.clipped_geom) == geometryDim)
         query = applyQueryFilters(query, filterIndices, operatorFilter)
         propsKeys = model.getPropertiesKeys(includePkey=True)
@@ -95,19 +102,30 @@ def createTile(tileSpec):
                     prop = prop.__float__()
                     if prop % 1 == 0.0:
                         properties[propKey] = properties[propKey].__int__()
-            geometry = to_shape(feature.clipped_geom)
-            yield featureMVT(geometry, properties)
-
+            finalGeom = feature.final_geom
+            if finalGeom:
+                if not isinstance(finalGeom, WKBElement):
+                    geometry = to_shape(WKBElement(feature.final_geom))
+                else:
+                    geometry = to_shape(feature.final_geom)
+                yield featureMVT(geometry, properties)
 
     def clippedSimpleShape():
-        clippedGeometry = model.bboxClippedGeom(bounds)
-        query = DBSession.query(model, clippedGeometry)
+        clippedGeometry = model.bboxClippedGeom(
+            bounds, geomcolumn=geometryColumnToReturn)
+        query = DBSession.query(
+            simplifyGeom(clippedGeometry, simplify, simplifyType),
+            *model.propertyColumns(includePkey=True))
         query = query.filter(model.bboxIntersects(bounds))
         query = applyQueryFilters(query, filterIndices, operatorFilter)
         for feature in query:
-            properties = feature[0].getProperties(includePkey=True)
-            geometry = to_shape(feature[1])
-            yield featureMVT(geometry, properties)
+            if feature:
+                properties = feature[0].getProperties(includePkey=True)
+                if not isinstance(feature[1], WKBElement):
+                    geometry = to_shape(WKBElement(feature[1]))
+                else:
+                    geometry = to_shape(feature[1])
+                yield featureMVT(geometry, properties)
 
     queryPerGeometryType = {
         'POINT': clippedSimpleShape,
@@ -131,17 +149,34 @@ def createTile(tileSpec):
         'CURVE': None # No support yet
     }
 
+    simplifyTypes = {
+        'POINT': False,
+        'MULTIPOINT': False,
+        'LINESTRING': True,
+        'MULTILINESTRING': True,
+        'POLYGON': True,
+        'MULTIPOLYGON': True,
+        'GEOMETRYCOLLECTION': False, # No support yet
+        'CURVE': False # No support yet
+    }
+
+    geometrycolumn = 'the_geom'
+    simplify = lod = tableName = filterIndices = operatorFilter = fullPath = None
+
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
-        lod = tableName = filterIndices = operatorFilter = fullPath = None
+        # DB query is lod dependent
         if lods is not None:
             lod = lods[str(zoomLevel)]
             filterIndices = lod.get('filterindices')
             operatorFilter = lod.get('operatorfilter')
             tableName = lod.get('tablename')
+            geometrycolumn = lod.get('geometrycolumn', 'the_geom')
+            simplify = lod.get('simplify')
             model = getModelFromBodId(layerBodId, tablename=tableName)
         else:
             model = getModelFromBodId(layerBodId)
+
         bounds = tileBounds
         # Apply buffer for points
         if gutter:
@@ -149,8 +184,11 @@ def createTile(tileSpec):
             bounds = extendBounds(bounds, buff)
 
         geometryColumn = model.geometryColumn()
+        geometryColumnToReturn = model.geometryColumn(
+            geometryColumnName=geometrycolumn)
         geometryType = geometryColumn.type.geometry_type
         geometryDim = geometryDimension[geometryType]
+        simplifyType = simplifyTypes[geometryType]
         spatialQuery = queryPerGeometryType[geometryType]
 
         DBSession = scoped_session(sessionmaker())
@@ -233,7 +271,7 @@ def main():
     layerBodId = conf.get('layerBodId')
     lods = conf.get('lods')
     filters = conf.get('filters', [])
-    gutter = float(conf.get('gutter', 10))
+    gutter = float(conf.get('gutter', 100.0))
 
     extent = conf.get('extent')
     tileSizePx = conf.get('tileSizePx', 256.0)

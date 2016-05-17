@@ -4,6 +4,7 @@ import decimal
 import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
+from sqlalchemy.exc import NoSuchColumnError
 from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2.elements import WKBElement
 from geoalchemy2.types import Geometry
@@ -12,7 +13,7 @@ from shapely.geometry import box
 # Defined here to be called from outside the web app
 dbhost = 'pg-sandbox.bgdi.ch'
 dbport = '5432'
-dbs = ['bod_int', 'stopo_tileforge_master']
+dbs = ['bod_int', 'stopo_master']
 
 
 class Engines(object):
@@ -76,8 +77,10 @@ class Vector(object):
         return cls.__mapper__.primary_key[0]
 
     @classmethod
-    def geometryColumn(cls):
-        return cls.__mapper__.columns['the_geom']
+    def geometryColumn(cls, geometryColumnName='the_geom'):
+        if geometryColumnName not in cls.__mapper__.columns:
+            raise NoSuchColumnError()
+        return cls.__mapper__.columns[geometryColumnName]
 
     """
     Returns a sqlalchemy.sql.functions.Function clipping function
@@ -97,10 +100,7 @@ class Vector(object):
                 bboxGeom.wkb),
             srid=srid,
             extended=extended)
-        if geomcolumn is None:
-            geomColumn = cls.geometryColumn()
-        else:
-            geomColumn = geomcolumn
+        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
         return func.ST_Intersection(geomColumn, wkbGeometry)
 
     """
@@ -109,14 +109,19 @@ class Vector(object):
     :params bbox: A list of 4 coordinates [minX, minX, maxX, maxY]
     """
     @classmethod
-    def bboxIntersects(cls, bbox, srid=21781, extended=False):
+    def bboxIntersects(
+            cls,
+            bbox,
+            srid=21781,
+            extended=False,
+            geomcolumn=None):
         bboxGeom = shapelyBBox(bbox)
         wkbGeometry = WKBElement(
             buffer(
                 bboxGeom.wkb),
             srid=srid,
             extended=extended)
-        geomColumn = cls.geometryColumn()
+        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
 
     """
