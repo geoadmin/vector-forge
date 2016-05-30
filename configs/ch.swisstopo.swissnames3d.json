@@ -3,7 +3,7 @@
   "tileSizePx": 256,
   "minZoom": 10,
   "maxZoom": 26,
-  "gutter": 20,
+  "gutter": 100,
   "extent": null,
   "filters": ["bgdi_type = 'point'"],
   "lods": {
