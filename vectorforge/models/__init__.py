@@ -11,7 +11,7 @@ from geoalchemy2.types import Geometry
 from shapely.geometry import box
 
 # Defined here to be called from outside the web app
-dbhost = 'pg-sandbox.bgdi.ch'
+dbhost = 'pg-0.dev.bgdi.ch'
 dbport = '5432'
 dbs = ['bod_int', 'stopo_master']
 
