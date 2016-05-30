@@ -12,17 +12,17 @@ if bases.get('stopo') is None:
 Base = bases.get('stopo')
 
 GeomMultiPoint = Geometry(
-        geometry_type='MULTIPOINT',
-        dimension=2,
-        srid=21781)
+    geometry_type='MULTIPOINT',
+    dimension=2,
+    srid=21781)
 GeomMultiLinestring = Geometry(
-        geometry_type='MULTILINESTRING',
-        dimension=2,
-        srid=21781)
+    geometry_type='MULTILINESTRING',
+    dimension=2,
+    srid=21781)
 GeomMultiPolygon = Geometry(
-        geometry_type='MULTIPOLYGON',
-        dimension=2,
-        srid=21781)
+    geometry_type='MULTIPOLYGON',
+    dimension=2,
+    srid=21781)
 
 # Multi Points
 
@@ -83,6 +83,7 @@ class CartoBodenbedeckung(Base, Vector):
     objektart = Column('objektart', Integer)
     rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiPolygon)
+    the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
 
 register('dkm10_bodenbedeckung', CartoBodenbedeckung)
 

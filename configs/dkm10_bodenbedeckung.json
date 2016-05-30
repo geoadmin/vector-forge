@@ -6,5 +6,97 @@
   "gutter": 20,
   "extent": null,
   "filters": null,
-  "lods": null
+  "lods": {
+    "14": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 325.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 250.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 125.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 50.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 25.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 10.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 5.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 2.5,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 1.25,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "24": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "25": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "26": {
+      "tablename": "dkm10_bodenbedeckung",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    }
+  }
 }
