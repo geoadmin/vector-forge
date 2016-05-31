@@ -6,6 +6,7 @@ geojson
 httplib2
 mapbox-vector-tile>=0.2.1
 poolmanager
+Pillow
 psycopg2==2.5.4
 pyflakes
 pyramid

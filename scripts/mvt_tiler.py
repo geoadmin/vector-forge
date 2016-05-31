@@ -103,7 +103,7 @@ def createTile(tileSpec):
                     if prop % 1 == 0.0:
                         properties[propKey] = properties[propKey].__int__()
             finalGeom = feature.final_geom
-            if finalGeom:
+            if finalGeom is not None:
                 if not isinstance(finalGeom, WKBElement):
                     geometry = to_shape(WKBElement(feature.final_geom))
                 else:
@@ -111,20 +111,30 @@ def createTile(tileSpec):
                 yield featureMVT(geometry, properties)
 
     def clippedSimpleShape():
-        clippedGeometry = model.bboxClippedGeom(
+        clipped = model.bboxIntersects(
+             bounds).label('clipped')
+        clippedGeoms = model.bboxClippedGeom(
             bounds, geomcolumn=geometryColumnToReturn)
         query = DBSession.query(
-            simplifyGeom(clippedGeometry, simplify, simplifyType),
-            *model.propertyColumns(includePkey=True))
-        query = query.filter(model.bboxIntersects(bounds))
+            simplifyGeom(clippedGeoms, simplify, simplifyType).label('final_geom'),
+            *model.propertyColumns(includePkey=True)).\
+                filter(clipped)
         query = applyQueryFilters(query, filterIndices, operatorFilter)
+        propsKeys = model.getPropertiesKeys(includePkey=True)
         for feature in query:
-            if feature:
-                properties = feature[0].getProperties(includePkey=True)
-                if not isinstance(feature[1], WKBElement):
-                    geometry = to_shape(WKBElement(feature[1]))
+            properties = {}
+            for propKey in propsKeys:
+                prop = properties[propKey] = getattr(feature, propKey)
+                if hasattr(prop, '__float__'):
+                    prop = prop.__float__()
+                    if prop % 1 == 0.0:
+                        properties[propKey] = properties[propKey].__int__()
+            finalGeom = feature.final_geom
+            if finalGeom is not None:
+                if not isinstance(finalGeom, WKBElement):
+                    geometry = to_shape(WKBElement(finalGeom))
                 else:
-                    geometry = to_shape(feature[1])
+                    geometry = to_shape(finalGeom)
                 yield featureMVT(geometry, properties)
 
     queryPerGeometryType = {
