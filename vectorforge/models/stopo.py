@@ -11,6 +11,10 @@ if bases.get('stopo') is None:
     init()
 Base = bases.get('stopo')
 
+GeomPoint = Geometry(
+    geometry_type='POINT',
+    dimension=2,
+    srid=21781)
 GeomMultiPoint = Geometry(
     geometry_type='MULTIPOINT',
     dimension=2,
@@ -37,7 +41,7 @@ class Vec200Namedlocation(Base, Vector):
     altitude = Column('altitude', Integer)
     the_geom = Column(GeomMultiPoint)
 
-register('ch.swisstopo.vec200-names-namedlocation', Vec200Namedlocation)
+register(Vec200Namedlocation)
 
 # Multi Lines
 
@@ -52,7 +56,7 @@ class Vec25Strassennetz(Base, Vector):
     objectval = Column('objectval', Text)
     the_geom = Column(GeomMultiLinestring)
 
-register('ch.swisstopo.vec25-strassennetz', Vec25Strassennetz)
+register(Vec25Strassennetz)
 
 # Multi Polygons
 
@@ -68,92 +72,186 @@ class SwissboundariesGemeinde(Base, Vector):
     kanton = Column('kanton', Text)
     the_geom = Column(GeomMultiPolygon)
 
-register(
-    'ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill',
-    SwissboundariesGemeinde)
+register(SwissboundariesGemeinde)
 
 # Carto layers
 
 
-class CartoBodenbedeckung(Base, Vector):
-    __tablename__ = 'dkm10_bodenbedeckung'
+class CartoBodenbedeckung:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
-    __bodId__ = 'dkm10_bodenbedeckung'
     id = Column('objectid', Integer, primary_key=True)
     objektart = Column('objektart', Integer)
     rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiPolygon)
+
+
+class CartoBodenbedeckung10(Base, CartoBodenbedeckung, Vector):
+    __tablename__ = 'dkm10_bodenbedeckung'
+    __bodId__ = 'dkm10_bodenbedeckung'
     the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
 
-register('dkm10_bodenbedeckung', CartoBodenbedeckung)
+
+class CartoBodenbedeckung500(Base, CartoBodenbedeckung, Vector):
+    __tablename__ = 'dkm500_bodenbedeckung'
+    __bodId__ = 'dkm500_bodenbedeckung'
+
+register(CartoBodenbedeckung10)
+register(CartoBodenbedeckung500)
 
 
-class CartoHoheitsgrenze(Base, Vector):
-    __tablename__ = 'dkm10_hoheitsgrenze'
+class CartoHoheitsgrenze:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
-    __bodId__ = 'dkm10_hoheitsgrenze'
     id = Column('objectid', Integer, primary_key=True)
     objekart = Column('objektart', Integer)
     rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiLinestring)
 
-register('dkm10_hoheitsgrenze', CartoHoheitsgrenze)
+
+class CartoHoheitsgrenze10(Base, CartoHoheitsgrenze, Vector):
+    __tablename__ = 'dkm10_hoheitsgrenze'
+    __bodId__ = 'dkm10_hoheitsgrenze'
 
 
-class CartoGewaesserLin(Base, Vector):
-    __tablename__ = 'dkm10_gewaesser_lin'
+class CartoHoheitsgrenze25(Base, CartoHoheitsgrenze, Vector):
+    __tablename__ = 'dkm25_hoheitsgrenze'
+    __bodId__ = 'dkm25_hoheitsgrenze'
+
+
+class CartoHoheitsgrenze50(Base, CartoHoheitsgrenze, Vector):
+    __tablename__ = 'dkm50_hoheitsgrenze'
+    __bodId__ = 'dkm50_hoheitsgrenze'
+
+
+class CartoHoheitsgrenze500(Base, CartoHoheitsgrenze, Vector):
+    __tablename__ = 'dkm500_hoheitsgrenze'
+    __bodId__ = 'dkm500_hoheitsgrenze'
+
+register(CartoHoheitsgrenze10)
+register(CartoHoheitsgrenze25)
+register(CartoHoheitsgrenze50)
+register(CartoHoheitsgrenze500)
+
+
+class CartoGewaesserLin:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
-    __bodId__ = 'dkm10_gewaesser_lin'
     id = Column('objectid', Integer, primary_key=True)
     objekart = Column('objektart', Integer)
     name = Column('name', Text)
     verlauf = Column('verlauf', Integer)
-    lb = Column('lb', Float)
     rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiLinestring)
 
-register('dkm10_gewaesser_lin', CartoGewaesserLin)
+
+class CartoGewaesserLin10(Base, CartoGewaesserLin, Vector):
+    __tablename__ = 'dkm10_gewaesser_lin'
+    __bodId__ = 'dkm10_gewaesser_lin'
+    lb = Column('lb', Float)
 
 
-class CartoGewaesserPly(Base, Vector):
+class CartoGewaesserLin25(Base, CartoGewaesserLin, Vector):
+    __tablename__ = 'dkm25_gewaesser_lin'
+    __bodId__ = 'dkm25_gewaesser_lin'
+    lb = Column('lb', Float)
+
+
+class CartoGewaesserLin50(Base, CartoGewaesserLin, Vector):
+    __tablename__ = 'dkm50_gewaesser_lin'
+    __bodId__ = 'dkm50_gewaesser_lin'
+    lb = Column('lb50', Float)
+
+
+class CartoGewaesserLin500(Base, CartoGewaesserLin, Vector):
+    __tablename__ = 'dkm500_gewaesser_lin'
+    __bodId__ = 'dkm500_gewaesser_lin'
+    lb = Column('lb500', Float)
+
+register(CartoGewaesserLin10)
+register(CartoGewaesserLin25)
+register(CartoGewaesserLin50)
+register(CartoGewaesserLin500)
+
+
+class CartoGewaesserPly:
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
+    id = Column('objectid', Integer, primary_key=True)
+    objekart = Column('objektart', Integer)
+    rid1 = Column('rid1', Integer)
+    the_geom = Column(GeomMultiPolygon)
+
+
+class CartoGewaesserPly10(Base, CartoGewaesserPly, Vector):
     __tablename__ = 'dkm10_gewaesser_ply'
-    __table_args__ = ({'schema': 'karto', 'autoload': False})
     __bodId__ = 'dkm10_gewaesser_ply'
+    name = Column('name', Text)
+
+
+class CartoGewaesserPly500(Base, CartoGewaesserPly, Vector):
+    __tablename__ = 'dkm500_gewaesser_ply'
+    __bodId__ = 'dkm500_gewaesser_ply'
+    name = Column('namn1', Text)
+
+register(CartoGewaesserPly10)
+register(CartoGewaesserPly500)
+
+
+class CartoSiedlungsname:
+    __table_args__ = ({'schema': 'karto', 'autoload': False})
     id = Column('objectid', Integer, primary_key=True)
     objekart = Column('objektart', Integer)
-    name = Column('name', Text)
     rid1 = Column('rid1', Integer)
-    the_geom = Column(GeomMultiPolygon)
-
-register('dkm10_gewaesser_ply', CartoGewaesserPly)
 
 
-class CartoSiedlungsname(Base, Vector):
+class CartoSiedlungsname10(Base, CartoSiedlungsname, Vector):
     __tablename__ = 'dkm10_siedlungsname'
-    __table_args__ = ({'schema': 'karto', 'autoload': False})
     __bodId__ = 'dkm10_siedlungsname'
-    id = Column('objectid', Integer, primary_key=True)
-    objekart = Column('objektart', Integer)
     name = Column('name', Text)
-    rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiPolygon)
 
-register('dkm10_siedlungsname', CartoSiedlungsname)
+
+class CartoSiedlungsname500(Base, CartoSiedlungsname, Vector):
+    __tablename__ = 'dkm500_ortschaft_pkt'
+    __bodId__ = 'dkm500_ortschaft_pkt'
+    name = Column('namn1', Text)
+    the_geom = Column(GeomPoint)
+
+register(CartoSiedlungsname10)
+register(CartoSiedlungsname500)
 
 
-class CartoSiedlungsnameAnno(Base, Vector):
-    __tablename__ = 'dkm10_siedlungsname_anno'
+class CartoSiedlungsnameAnno:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
-    __bodId__ = 'dkm10_siedlungsname_anno'
     id = Column('objectid', Integer, primary_key=True)
     annotationclassid = Column('annotationclassid', Integer)
     textstring = Column('textstring', Text)
     fontsize = Column('fontsize', Integer)
     bold = Column('bold', Integer)
     italic = Column('italic', Integer)
-    the_geom = Column(GeomMultiPolygon)
+    the_geom = Column(GeomPoint)
 
-register('dkm10_siedlungsname_anno', CartoSiedlungsnameAnno)
+
+class CartoSiedlungsnameAnno10(Base, CartoSiedlungsnameAnno, Vector):
+    __tablename__ = 'dkm10_siedlungsname_anno'
+    __bodId__ = 'dkm10_siedlungsname_anno'
+
+
+class CartoSiedlungsnameAnno25(Base, CartoSiedlungsnameAnno, Vector):
+    __tablename__ = 'dkm25_siedlungsname_anno'
+    __bodId__ = 'dkm25_siedlungsname_anno'
+
+
+class CartoSiedlungsnameAnno50(Base, CartoSiedlungsnameAnno, Vector):
+    __tablename__ = 'dkm50_siedlungsname_anno'
+    __bodId__ = 'dkm50_siedlungsname_anno'
+
+
+class CartoSiedlungsnameAnno500(Base, CartoSiedlungsnameAnno, Vector):
+    __tablename__ = 'dkm500_siedlungsname_anno'
+    __bodId__ = 'dkm500_siedlungsname_anno'
+
+register(CartoSiedlungsnameAnno10)
+register(CartoSiedlungsnameAnno25)
+register(CartoSiedlungsnameAnno50)
+register(CartoSiedlungsnameAnno500)
 
 # Swissnames only
 
@@ -258,20 +356,20 @@ class Swissnames3dRaster13(Base, Swissnames3d, Vector):
     __minscale__ = 1
 
 
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster00)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster01)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster02)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster03)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster04)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster05)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster06)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster07)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster08)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster09)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster10)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster11)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster12)
-register('ch.swisstopo.swissnames3d', Swissnames3dRaster13)
+register(Swissnames3dRaster00)
+register(Swissnames3dRaster01)
+register(Swissnames3dRaster02)
+register(Swissnames3dRaster03)
+register(Swissnames3dRaster04)
+register(Swissnames3dRaster05)
+register(Swissnames3dRaster06)
+register(Swissnames3dRaster07)
+register(Swissnames3dRaster08)
+register(Swissnames3dRaster09)
+register(Swissnames3dRaster10)
+register(Swissnames3dRaster11)
+register(Swissnames3dRaster12)
+register(Swissnames3dRaster13)
 
 
 def getModelFromBodId(bodId, tablename=None):

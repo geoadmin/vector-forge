@@ -54,7 +54,8 @@ bases = Bases()
 layers = {}
 
 
-def register(layerId, model):
+def register(model):
+    layerId = model.__bodId__
     if layerId not in layers:
         layers[layerId] = [model]
     else:
