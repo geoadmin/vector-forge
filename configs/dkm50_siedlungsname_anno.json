@@ -1,8 +1,8 @@
 {
-  "layerBodId": "dkm10_siedlungsname_anno",
+  "layerBodId": "dkm50_siedlungsname_anno",
   "tileSizePx": 256,
-  "minZoom": 16,
-  "maxZoom": 20,
+  "minZoom": 15,
+  "maxZoom": 18,
   "gutter": 100,
   "extent": null,
   "filters": null,

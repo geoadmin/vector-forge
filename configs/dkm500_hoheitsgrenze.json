@@ -1,8 +1,8 @@
 {
-  "layerBodId": "dkm10_siedlungsname_anno",
+  "layerBodId": "dkm50_hoheitsgrenze",
   "tileSizePx": 256,
-  "minZoom": 16,
-  "maxZoom": 20,
+  "minZoom": 14,
+  "maxZoom": 17,
   "gutter": 100,
   "extent": null,
   "filters": null,
