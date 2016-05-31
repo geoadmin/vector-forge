@@ -2,7 +2,7 @@
   "layerBodId": "dkm500_siedlungsname_anno",
   "tileSizePx": 256,
   "minZoom": 14,
-  "maxZoom": 17,
+  "maxZoom": 18,
   "gutter": 100,
   "extent": null,
   "filters": null,
