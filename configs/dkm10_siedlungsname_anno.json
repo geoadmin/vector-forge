@@ -3,7 +3,9 @@
   "tileSizePx": 256,
   "minZoom": 18,
   "maxZoom": 24,
-  "gutter": 100,
+  "gutter": 5,
+  "isAnnotationLayer": true,
+  "maxFontSize": 20,
   "extent": null,
   "filters": null,
   "lods": null

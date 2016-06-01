@@ -83,6 +83,12 @@ class Vector(object):
             raise NoSuchColumnError()
         return cls.__mapper__.columns[geometryColumnName]
 
+    @classmethod
+    def annotationColumn(cls, annotationColumnName='textstring'):
+        if annotationColumnName not in cls.__mapper__.columns:
+            raise NoSuchColumnError()
+        return cls.__mapper__.columns[annotationColumnName]
+
     """
     Returns a sqlalchemy.sql.functions.Function clipping function
     :param bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
@@ -124,6 +130,39 @@ class Vector(object):
             extended=extended)
         geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
         return func.ST_Intersects(geomColumn, wkbGeometry)
+
+    """
+    Returns a slqalchemy.sql.functions.Function interesects function
+    Use it as a filter to determine if an annotation feature should be returned
+    (True or False)
+    :params bbox: A list of 4 coordinates [minX, minX, maxX, maxY]
+    :params letterSizMeters: A list of 2 integers expressing the width and the height of a letter in meters.
+    """
+    @classmethod
+    def bboxIntersectsAnnotation(cls,
+            bbox,
+            letterSizMeters,
+            srid=21781,
+            extended=False,
+            geomcolumn=None):
+        bboxGeom = shapelyBBox(bbox)
+        wkbGeometry = WKBElement(
+            buffer(
+                bboxGeom.wkb),
+            srid=srid,
+            extended=extended)
+        if geomcolumn is None:
+          geomColumn = cls.geometryColumn()
+        else:
+          geomColumn = geomcolumn
+
+        return func.ST_Intersects(func.ST_SetSRID(func.ST_MakeBox2D(
+            func.ST_Point(func.st_x(geomColumn) - func.char_length(cls.annotationColumn()) / 2 * letterSizMeters[0],
+                func.st_y(geomColumn) - letterSizMeters[1] / 2),
+            func.ST_Point(func.st_x(geomColumn) + func.char_length(cls.annotationColumn()) / 2 * letterSizMeters[0],
+                func.st_y(geomColumn) + letterSizMeters[1] / 2)), srid),
+            wkbGeometry)
+
 
     """
     Returns a sqlalchemy.sql.functions.Function line merge function
