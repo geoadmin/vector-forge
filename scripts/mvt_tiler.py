@@ -3,6 +3,7 @@
 import cStringIO
 import time
 import datetime
+import os
 import sys
 import json
 import traceback
@@ -11,8 +12,9 @@ import mapbox_vector_tile
 from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
 from multiprocessing import Value
+from PIL import ImageFont
 
-from sqlalchemy import text, not_
+from sqlalchemy import text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
@@ -53,6 +55,21 @@ def createQueryFilter(filters, filterIndices, operatorFilter):
         if count < len(filterIndices):
             txt += operatorFilter
     return text(txt)
+
+
+def estimateLetterSizePx(maxFontSizePx):
+    # Estimate the dimension of one letter in pixels using the provided
+    # font. For now the freely available Liberation Sans TrueType font is used
+    # which shows the same text width as the Arial ttf.
+    # The computed letter width is over-estimated as typical labels have a
+    # lower percentage of wide upper-case characters.
+    fontDir = "/usr/share/fonts/truetype/liberation/"
+    fontType = "LiberationSans-Regular.ttf"
+    fontPath = os.path.join(fontDir, fontType)
+    refText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    textSize = ImageFont.truetype(fontPath, maxFontSizePx).getsize(refText)
+    letterSize = (textSize[0] / len(refText), textSize[1])
+    return letterSize
 
 
 def extendBounds(b, d):
@@ -137,6 +154,21 @@ def createTile(tileSpec):
                     geometry = to_shape(finalGeom)
                 yield featureMVT(geometry, properties)
 
+    def annotationShape():
+        query = DBSession.query(model)
+        query = query.filter(model.bboxIntersectsAnnotation(
+            bounds, letterSizeMeters))
+        query = applyQueryFilters(query, filterIndices, operatorFilter)
+        for feature in query:
+            properties = feature.getProperties(includePkey=True)
+            theGeom = feature.the_geom
+            if theGeom is not None:
+                if not isinstance(theGeom, WKBElement):
+                    geometry = to_shape(WKBElement(theGeom))
+                else:
+                    geometry = to_shape(theGeom)
+            yield featureMVT(geometry, properties)
+
     queryPerGeometryType = {
         'POINT': clippedSimpleShape,
         'MULTIPOINT': clippedSimpleShape,
@@ -175,6 +207,7 @@ def createTile(tileSpec):
 
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
+        resolutionMetersPerPixel = gagrid.getResolution(zoomLevel)
         # DB query is lod dependent
         if lods is not None:
             lod = lods[str(zoomLevel)]
@@ -188,7 +221,7 @@ def createTile(tileSpec):
             model = getModelFromBodId(layerBodId)
 
         bounds = tileBounds
-        # Apply buffer for points
+        # Extend tile extent for including features near tile boundaries.
         if gutter:
             buff = gagrid.getResolution(zoomLevel) * gutter
             bounds = extendBounds(bounds, buff)
@@ -200,6 +233,13 @@ def createTile(tileSpec):
         geometryDim = geometryDimension[geometryType]
         simplifyType = simplifyTypes[geometryType]
         spatialQuery = queryPerGeometryType[geometryType]
+        letterSizeMeters = None
+        if isAnnotationLayer:
+            spatialQuery = annotationShape
+            letterSizeMeters = (
+                letterSizePx[0] * resolutionMetersPerPixel,
+                letterSizePx[1] * resolutionMetersPerPixel
+            )
 
         DBSession = scoped_session(sessionmaker())
         features = []
@@ -257,6 +297,8 @@ def main():
     global lods
     global filters
     global gutter
+    global letterSizePx
+    global isAnnotationLayer
     global gagrid
     global debug
 
@@ -291,6 +333,9 @@ def main():
     maxZoom = conf.get('maxZoom', 26)
     tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
+    isAnnotationLayer = conf.get('isAnnotationLayer', False)
+    letterSizePx = estimateLetterSizePx(conf.get('maxFontSize', 20))
+
     if debug:
         map(createTile, tileGrid)
     else:
@@ -309,6 +354,6 @@ if __name__ == '__main__':
     skippedTiles = Value('i', 0)
     debugCounter = Value('i', 0)
     # Boto is thread safe
-    conn = s3Connect('ltgal_aws_admin')
+    conn = s3Connect('ltsbi_aws_admin')
     bucket = getBucket(conn)
     main()

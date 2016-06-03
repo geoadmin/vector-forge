@@ -65,6 +65,8 @@ Create a json config file `config/${layerBodId}.json`.
 | minZoom                     | The minimal zoom where to start the tileing from       | 0                                          |
 | maxZoom                     | The maximal zoom where to stop the tileing at          | 26                                         |
 | gutter                      | The buffer in pixels around the tile                   | 100                                        |
+| isAnnotationLayer           | True if this is an annotation layer                    | false                                      |
+| maxFontSize                 | The maximum font size in pixels                        | 20                                         |
 | extent                      | The intersection extent selecting the tiles            | [420000.0, 30000.0, 900000.0, 350000.0]    |
 | filters                     | A List of filters                                      | []                                         |
 | lods                        | The levels of details on which to apply the filters on | No filters applied                         |
