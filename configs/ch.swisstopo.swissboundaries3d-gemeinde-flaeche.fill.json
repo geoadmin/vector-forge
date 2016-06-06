@@ -6,5 +6,97 @@
   "gutter": 100,
   "extent": null,
   "filters": null,
-  "lods": null
+  "lods": {
+    "14": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 650.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 500.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 250.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 100.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 50.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 20.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 10.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 5.0,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom_topo",
+      "simplify": 2.5,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "24": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "25": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "26": {
+      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "geometrycolumn": "the_geom",
+      "simplify": null,
+      "filterindices": null,
+      "operatorfilter": null
+    }
+  }
 }
