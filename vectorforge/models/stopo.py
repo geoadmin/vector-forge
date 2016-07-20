@@ -62,15 +62,15 @@ register(Vec25Strassennetz)
 
 
 class SwissboundariesGemeinde(Base, Vector):
-    __tablename__ = 'swissboundaries_gemeinden'
+    __tablename__ = 'prodas_spatialseltype_gemeinde_forge'
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
     __bodId__ = 'ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill'
     id = Column('id', Integer, primary_key=True)
-    gemname = Column('gemname', Text)
-    gemflaeche = Column('gemflaeche', Numeric)
-    perimeter = Column('perimeter', Numeric)
+    gemname = Column('displayname', Text)
+    bezirk = Column('bezirk', Text)
     kanton = Column('kanton', Text)
     the_geom = Column(GeomMultiPolygon)
+    the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
 
 register(SwissboundariesGemeinde)
 
