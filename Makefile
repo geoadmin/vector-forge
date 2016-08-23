@@ -3,7 +3,9 @@ DEV_PORT ?= 9040
 PYTHON_CMD = $(VENV)/bin/python
 PYFLAKES_CMD = $(VENV)/bin/pyflakes
 AUTOPEP8_CMD = $(VENV)/bin/autopep8
+MAKO_CMD = $(VENV)/bin/mako-render
 USER = $(shell whoami)
+DBHOST ?= pg-0.dev.bgdi.ch
 PYTHON_FILES = $(shell find vectorforge/ -type f -name "*.py" -print)
 
 .PHONY: help
@@ -40,12 +42,7 @@ install:
 	npm install
 
 .PHONY: template
-template:
-	@if [ -z "$(DEV_PORT)" ]; then \
-		echo "ERROR: Environment variables for DEV_PORT is not set"; exit 2; \
-	else true; fi
-	sed -e 's/$$DEV_PORT/$(DEV_PORT)/' development.ini.in > development.ini
-	cp production.ini.in production.ini
+template: development.ini production.ini
 
 .PHONY: lint
 lint:
@@ -58,6 +55,14 @@ autolint:
 .PHONY: dev
 dev:
 	$(VENV)/bin/pserve development.ini --reload
+
+development.ini: development.ini.in
+	${MAKO_CMD} \
+		--var "dev_port=$(DEV_PORT)" $< > $@
+
+production.ini: production.ini.in
+	${MAKO_CMD} \
+		--var "dbhost=$(DBHOST)" $< > $@
 
 .PHONY: clean
 clean:

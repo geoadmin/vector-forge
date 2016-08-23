@@ -1,5 +1,5 @@
 {
-  "layerBodId": "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill",
+  "layerBodId": "ch.swisstopo.swissboundaries3d-kanton-flaeche.fill",
   "tileSizePx": 256,
   "minZoom": 14,
   "maxZoom": 26,
@@ -8,91 +8,91 @@
   "filters": null,
   "lods": {
     "14": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 1300.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "15": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 1000.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "16": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 500.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "17": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 200.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "18": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 100.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "19": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 40.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "20": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 20.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "21": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 10.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "22": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom_topo",
       "simplify": 5.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "23": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom",
       "simplify": 1.0,
       "filterindices": null,
       "operatorfilter": null
     },
     "24": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom",
       "simplify": null,
       "filterindices": null,
       "operatorfilter": null
     },
     "25": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom",
       "simplify": null,
       "filterindices": null,
       "operatorfilter": null
     },
     "26": {
-      "tablename": "prodas_spatialseltype_gemeinde_forge",
+      "tablename": "prodas_spatialseltype_kanton",
       "geometrycolumn": "the_geom",
       "simplify": null,
       "filterindices": null,

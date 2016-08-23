@@ -59,6 +59,32 @@ class Vec25Strassennetz(Base, Vector):
 register(Vec25Strassennetz)
 
 # Multi Polygons
+class SwissboundariesKanton(Base, Vector):
+    __tablename__ = 'prodas_spatialseltype_kanton'
+    __table_args__ = ({'schema': 'tlm', 'autoload': False})
+    __bodId__ = 'ch.swisstopo.swissboundaries3d-kanton-flaeche.fill'
+    id = Column('id', Integer, primary_key=True)
+    bez = Column('bez', Text)
+    kanton = Column('kanton', Text)
+    flaeche = Column('flaeche', Integer)
+    the_geom = Column(GeomMultiPolygon)
+    the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
+
+register(SwissboundariesKanton)
+
+
+class SwissboundariesBezirk(Base, Vector):
+    __tablename__ = 'prodas_spatialseltype_bezirk'
+    __table_args__ = ({'schema': 'tlm', 'autoload': False})
+    __bodId__ = 'ch.swisstopo.swissboundaries3d-bezirk-flaeche.fill'
+    id = Column('id', Integer, primary_key=True)
+    gemname = Column('displayname', Text)
+    bezirk = Column('bezirk', Text)
+    kanton = Column('kanton', Text)
+    the_geom = Column(GeomMultiPolygon)
+    the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
+
+register(SwissboundariesBezirk)
 
 
 class SwissboundariesGemeinde(Base, Vector):

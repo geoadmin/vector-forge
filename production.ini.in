@@ -21,6 +21,10 @@ use = egg:waitress#main
 host = 0.0.0.0
 port = 6543
 
+sqlalchemy.bod.url = postgresql://www-data@${dbhost}:5432/bod_master
+sqlalchemy.stopo.url = postgresql://www-data${dbhost}:5432/stopo_master
+
+
 ###
 # logging configuration
 # http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/narr/logging.html

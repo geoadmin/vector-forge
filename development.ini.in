@@ -25,7 +25,7 @@ pyramid.includes =
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
-port = $DEV_PORT
+port = ${dev_port}
 
 ###
 # logging configuration

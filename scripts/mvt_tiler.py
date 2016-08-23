@@ -66,6 +66,9 @@ def estimateLetterSizePx(maxFontSizePx):
     fontDir = "/usr/share/fonts/truetype/liberation/"
     fontType = "LiberationSans-Regular.ttf"
     fontPath = os.path.join(fontDir, fontType)
+    if not os.path.exists(fontPath):
+        print 'Font file not found, please install fonts-liberation'
+        sys.exit(1)
     refText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     textSize = ImageFont.truetype(fontPath, maxFontSizePx).getsize(refText)
     letterSize = (textSize[0] / len(refText), textSize[1])
@@ -353,7 +356,8 @@ if __name__ == '__main__':
     t0 = time.time()
     skippedTiles = Value('i', 0)
     debugCounter = Value('i', 0)
+    user = os.environ.get('USER')
     # Boto is thread safe
-    conn = s3Connect('ltsbi_aws_admin')
+    conn = s3Connect('%s_aws_admin' % user)
     bucket = getBucket(conn)
     main()
