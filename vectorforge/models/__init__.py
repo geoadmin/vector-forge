@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
+import ConfigParser
 import decimal
 import datetime
 from sqlalchemy import create_engine
@@ -9,11 +11,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2.elements import WKBElement
 from geoalchemy2.types import Geometry
 from shapely.geometry import box
-
-# Defined here to be called from outside the web app
-dbhost = 'pg-0.dev.bgdi.ch'
-dbport = '5432'
-dbs = ['bod_int', 'stopo_master']
 
 
 class Engines(object):
@@ -63,12 +60,17 @@ def register(model):
 
 
 def init():
-    for dbname in dbs:
-        engine = create_engine(
-            'postgresql://%s:%s/%s' %
-            (dbhost, dbport, dbname))
-        engines.add(engine, dbname)
-        bases.add(engine, dbname)
+    srvMain = 'server:main'
+    config = ConfigParser.ConfigParser()
+    config.read('production.ini')
+    options = config.options(srvMain)
+    for option in options:
+        if option.startswith('sqlalchemy.'):
+            dbUrl = config.get(srvMain, option)
+            engine = create_engine(dbUrl)
+            dbName = re.search('sqlalchemy.([a-z]*).url', option).groups()[0]
+            engines.add(engine, dbName)
+            bases.add(engine, dbName)
 
 
 class Vector(object):
