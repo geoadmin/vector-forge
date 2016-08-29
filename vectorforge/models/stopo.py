@@ -79,7 +79,7 @@ class SwissboundariesBezirk(Base, Vector):
     __bodId__ = 'ch.swisstopo.swissboundaries3d-bezirk-flaeche.fill'
     id = Column('id', Integer, primary_key=True)
     gemname = Column('displayname', Text)
-    bezirk = Column('bezirk', Text)
+    bez = Column('bez', Text)
     kanton = Column('kanton', Text)
     the_geom = Column(GeomMultiPolygon)
     the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
