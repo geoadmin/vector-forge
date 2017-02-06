@@ -4,8 +4,9 @@ import re
 import ConfigParser
 import decimal
 import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Integer
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import cast
 from sqlalchemy.exc import NoSuchColumnError
 from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2.elements import WKBElement
@@ -92,9 +93,20 @@ class Vector(object):
         return cls.__mapper__.columns[annotationColumnName]
 
     """
+    Returns a sqlalchemy.sql.functions.Function
+    :params srid: the target srid.
+    :params geometrycolumn: Another geometry column (or expression) than the one defined on the childe model.
+    """
+    @classmethod
+    def transform(cls, srid, geomcolumn=None):
+        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
+        return func.ST_Transform(geomColumn, cast(srid, Integer))
+
+    """
     Returns a sqlalchemy.sql.functions.Function clipping function
-    :param bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
-    :params geomcolumn: Another geometry column (or expression) than the one defined on the childe model.
+    :params bbox: A list of 4 coordinates [minX, minY, maxX, maxY]
+    :params srid: the srid of the bbox and returned geometry.
+    :params geomcolumn: Another geometry column (or expression) than the one defined on the child model.
     """
     @classmethod
     def bboxClippedGeom(
@@ -104,18 +116,27 @@ class Vector(object):
             extended=False,
             geomcolumn=None):
         bboxGeom = shapelyBBox(bbox)
+        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
         wkbGeometry = WKBElement(
             buffer(
                 bboxGeom.wkb),
             srid=srid,
             extended=extended)
-        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
+        # Transform bbox and cut geometries using the target srid
+        if geomColumn.type.srid != srid:
+            wkbGeometry = cls.transform(
+                geomColumn.type.srid, geomcolumn=wkbGeometry)
+            return cls.transform(
+                srid, func.ST_Intersection(
+                    geomColumn, wkbGeometry))
         return func.ST_Intersection(geomColumn, wkbGeometry)
 
     """
     Returns a slqalchemy.sql.functions.Function interesects function
     Use it as a filter to determine if a geometry should be returned (True or False)
     :params bbox: A list of 4 coordinates [minX, minX, maxX, maxY]
+    :params srid: the srid of the bbox and returned geometry.
+    :params geomcolumn: Another geometry column (or expression) than the one defined on the child model.
     """
     @classmethod
     def bboxIntersects(
@@ -131,6 +152,9 @@ class Vector(object):
             srid=srid,
             extended=extended)
         geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
+        if geomColumn.type.srid != srid:
+            wkbGeometry = cls.transform(
+                geomColumn.type.srid, geomcolumn=wkbGeometry)
         return func.ST_Intersects(geomColumn, wkbGeometry)
 
     """
@@ -142,29 +166,45 @@ class Vector(object):
     """
     @classmethod
     def bboxIntersectsAnnotation(cls,
-            bbox,
-            letterSizMeters,
-            srid=21781,
-            extended=False,
-            geomcolumn=None):
+                                 bbox,
+                                 letterSizMeters,
+                                 srid=21781,
+                                 extended=False,
+                                 geomcolumn=None):
         bboxGeom = shapelyBBox(bbox)
+        geomColumn = geomcolumn if geomcolumn is not None else cls.geometryColumn()
         wkbGeometry = WKBElement(
             buffer(
                 bboxGeom.wkb),
             srid=srid,
             extended=extended)
-        if geomcolumn is None:
-          geomColumn = cls.geometryColumn()
-        else:
-          geomColumn = geomcolumn
-
-        return func.ST_Intersects(func.ST_SetSRID(func.ST_MakeBox2D(
-            func.ST_Point(func.st_x(geomColumn) - func.char_length(cls.annotationColumn()) / 2 * letterSizMeters[0],
-                func.st_y(geomColumn) - letterSizMeters[1] / 2),
-            func.ST_Point(func.st_x(geomColumn) + func.char_length(cls.annotationColumn()) / 2 * letterSizMeters[0],
-                func.st_y(geomColumn) + letterSizMeters[1] / 2)), srid),
+        if geomColumn.type.srid != srid:
+            wkbGeometry = cls.transform(
+                geomColumn.type.srid, geomcolumn=wkbGeometry)
+        query = func.ST_Intersects(
+            func.ST_SetSRID(
+                func.ST_MakeBox2D(
+                    func.ST_Point(
+                        func.st_x(geomColumn) -
+                        func.char_length(
+                            cls.annotationColumn()) /
+                        2 *
+                        letterSizMeters[0],
+                        func.st_y(geomColumn) -
+                        letterSizMeters[1] /
+                        2),
+                    func.ST_Point(
+                        func.st_x(geomColumn) +
+                        func.char_length(
+                            cls.annotationColumn()) /
+                        2 *
+                        letterSizMeters[0],
+                        func.st_y(geomColumn) +
+                        letterSizMeters[1] /
+                        2)),
+                geomColumn.type.srid),
             wkbGeometry)
-
+        return query
 
     """
     Returns a sqlalchemy.sql.functions.Function line merge function

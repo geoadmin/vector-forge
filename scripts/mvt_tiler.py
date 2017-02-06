@@ -22,6 +22,7 @@ from geoalchemy2.elements import WKBElement
 from vectorforge.models.stopo import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, writeToS3
+from vectorforge.lib.grids import GlobalGeodeticTileGrid, GlobalMercatorTileGrid
 
 
 def featureMVT(geometry, properties):
@@ -101,9 +102,9 @@ def createTile(tileSpec):
 
     def clippedMultiShape():
         clipped = model.bboxIntersects(
-            bounds).label('clipped')
+            bounds, srid=srid).label('clipped')
         clippedGeoms = model.bboxClippedGeom(
-            bounds, geomcolumn=geometryColumnToReturn)
+            bounds, srid=srid, geomcolumn=geometryColumnToReturn)
         sub = DBSession.query(
             (func.ST_Dump(clippedGeoms)).geom.label('clipped_geom'),
             *model.propertyColumns(includePkey=True)).\
@@ -132,9 +133,9 @@ def createTile(tileSpec):
 
     def clippedSimpleShape():
         clipped = model.bboxIntersects(
-             bounds).label('clipped')
+             bounds, srid=srid).label('clipped')
         clippedGeoms = model.bboxClippedGeom(
-            bounds, geomcolumn=geometryColumnToReturn)
+            bounds, srid=srid, geomcolumn=geometryColumnToReturn)
         query = DBSession.query(
             simplifyGeom(clippedGeoms, simplify, simplifyType).label('final_geom'),
             *model.propertyColumns(includePkey=True)).\
@@ -207,6 +208,7 @@ def createTile(tileSpec):
 
     geometrycolumn = 'the_geom'
     simplify = lod = tableName = filterIndices = operatorFilter = fullPath = None
+    tileAddressTemplate = '{zoom}/{tileCol}/{tileRow}.pbf'
 
     try:
         (tileBounds, zoomLevel, tileCol, tileRow) = tileSpec
@@ -249,8 +251,10 @@ def createTile(tileSpec):
         for feat in spatialQuery():
             features.append(feat)
         if len(features) > 0:
-            basePath = '2.1.0/%s/21781/default/current/' % layerBodId
-            path = '%s/%s/%s.pbf' % (zoomLevel, tileCol, tileRow)
+            basePath = '2.1.0/%s/%s/default/current/' % (layerBodId, srid)
+            path = tileAddressTemplate.replace('{zoom}', '%s' % zoomLevel) \
+                                      .replace('{tileCol}', '%s' % tileCol) \
+                                      .replace('{tileRow}', '%s' % tileRow)
             fullPath = basePath + path
             mvt = layerMVT(model.__bodId__, features, tileBounds)
             f = cStringIO.StringIO()
@@ -304,6 +308,7 @@ def main():
     global isAnnotationLayer
     global gagrid
     global debug
+    global srid
 
     if len(sys.argv) < 2:
         print 'Please provide a json configuration. Exit.'
@@ -330,20 +335,30 @@ def main():
 
     extent = conf.get('extent')
     tileSizePx = conf.get('tileSizePx', 256.0)
-    gagrid = GeoadminTileGrid(extent=extent, tileSizePx=float(tileSizePx))
-
     minZoom = conf.get('minZoom', 0)
     maxZoom = conf.get('maxZoom', 26)
-    tileGrid = gagrid.iterGrid(minZoom, maxZoom)
+
+    srid = conf.get('srid', 21781)
+
+    if srid == 21781:
+        gagrid = GeoadminTileGrid(extent=extent, tileSizePx=float(tileSizePx))
+        tileGrid = gagrid.iterGrid(minZoom, maxZoom)
+    elif srid == 3857:
+        gagrid = GlobalMercatorTileGrid(extent=extent, tileSizePx=float(tileSizePx))
+        tileGrid = gagrid.iterGrid(minZoom, maxZoom)
+    elif srid == 4326:
+        gagrid = GlobalGeodeticTileGrid(extent=extent, tileSizePx=float(tileSizePx))
+        tileGrid = gagrid.iterGrid(minZoom, maxZoom)
 
     isAnnotationLayer = conf.get('isAnnotationLayer', False)
-    letterSizePx = estimateLetterSizePx(conf.get('maxFontSize', 20))
+    if isAnnotationLayer:
+        letterSizePx = estimateLetterSizePx(conf.get('maxFontSize', 20))
 
     if debug:
         map(createTile, tileGrid)
     else:
         pm = PoolManager(factor=2)
-        pm.imap_unordered(tileGrid, createTile, 50, callback=callback)
+        pm.imap_unordered(createTile, tileGrid, 50, callback=callback)
 
     # End of process
     t3 = time.time()
