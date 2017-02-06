@@ -1,6 +1,7 @@
 VENV = .venv
 DEV_PORT ?= 9040
 PYTHON_CMD = $(VENV)/bin/python
+PIP_CMD = $(VENV)/bin/pip
 PYFLAKES_CMD = $(VENV)/bin/pyflakes
 AUTOPEP8_CMD = $(VENV)/bin/autopep8
 MAKO_CMD = $(VENV)/bin/mako-render
@@ -37,8 +38,9 @@ install:
 	@if [ ! -d $(VENV) ]; \
 	then \
 		virtualenv $(VENV) --distribute; \
+		$(PIP_CMD) install --upgrade pip; \
 	fi; \
-	$(PYTHON_CMD) setup.py develop
+	$(PIP_CMD) install -e .
 	npm install
 
 .PHONY: template
