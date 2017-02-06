@@ -1,0 +1,12 @@
+{
+  "layerBodId": "ch.swisstopo.swissnames3d_point",
+  "tileSizePx": 256,
+  "srid": 3857,
+  "extent": [572280.03, 5684599.67, 1277841.35, 6145546.44],
+  "minZoom": 7,
+  "maxZoom": 22,
+  "gutter": 10,
+  "isAnnotationLayer": false,
+  "filters": null,
+  "lods": null
+}

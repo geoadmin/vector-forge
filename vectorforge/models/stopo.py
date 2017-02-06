@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Column, Text, Integer, Float
+from sqlalchemy import Column, Unicode, Integer, Float
 from sqlalchemy.types import Numeric
 from geoalchemy2.types import Geometry
 
@@ -35,13 +35,14 @@ class Vec200Namedlocation(Base, Vector):
     __tablename__ = 'vec200_namedlocation'
     __table_args__ = ({'autoload': False})
     __bodId__ = 'ch.swisstopo.vec200-names-namedlocation'
-    id = Column('gtdboid', Text, primary_key=True)
-    objname1 = Column('objname1', Text)
-    objname2 = Column('objname2', Text)
+    id = Column('gtdboid', Unicode, primary_key=True)
+    objname1 = Column('objname1', Unicode)
+    objname2 = Column('objname2', Unicode)
     altitude = Column('altitude', Integer)
     the_geom = Column(GeomMultiPoint)
 
 register(Vec200Namedlocation)
+
 
 # Multi Lines
 
@@ -53,19 +54,21 @@ class Vec25Strassennetz(Base, Vector):
     id = Column('objectid', Integer, primary_key=True)
     length = Column('length', Numeric)
     yearofchan = Column('yearofchan', Float)
-    objectval = Column('objectval', Text)
+    objectval = Column('objectval', Unicode)
     the_geom = Column(GeomMultiLinestring)
 
 register(Vec25Strassennetz)
 
 # Multi Polygons
+
+
 class SwissboundariesKanton(Base, Vector):
     __tablename__ = 'prodas_spatialseltype_kanton'
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
     __bodId__ = 'ch.swisstopo.swissboundaries3d-kanton-flaeche.fill'
     id = Column('id', Integer, primary_key=True)
-    bez = Column('bez', Text)
-    kanton = Column('kanton', Text)
+    bez = Column('bez', Unicode)
+    kanton = Column('kanton', Unicode)
     flaeche = Column('flaeche', Integer)
     the_geom = Column(GeomMultiPolygon)
     the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
@@ -78,9 +81,9 @@ class SwissboundariesBezirk(Base, Vector):
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
     __bodId__ = 'ch.swisstopo.swissboundaries3d-bezirk-flaeche.fill'
     id = Column('id', Integer, primary_key=True)
-    gemname = Column('displayname', Text)
-    bez = Column('bez', Text)
-    kanton = Column('kanton', Text)
+    gemname = Column('displayname', Unicode)
+    bez = Column('bez', Unicode)
+    kanton = Column('kanton', Unicode)
     the_geom = Column(GeomMultiPolygon)
     the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
 
@@ -92,9 +95,9 @@ class SwissboundariesGemeinde(Base, Vector):
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
     __bodId__ = 'ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill'
     id = Column('id', Integer, primary_key=True)
-    gemname = Column('displayname', Text)
-    bezirk = Column('bezirk', Text)
-    kanton = Column('kanton', Text)
+    gemname = Column('displayname', Unicode)
+    bezirk = Column('bezirk', Unicode)
+    kanton = Column('kanton', Unicode)
     the_geom = Column(GeomMultiPolygon)
     the_geom_topo = Column('the_geom_topo', GeomMultiPolygon)
 
@@ -162,7 +165,7 @@ class CartoGewaesserLin:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
     id = Column('objectid', Integer, primary_key=True)
     objekart = Column('objektart', Integer)
-    name = Column('name', Text)
+    name = Column('name', Unicode)
     verlauf = Column('verlauf', Integer)
     rid1 = Column('rid1', Integer)
     the_geom = Column(GeomMultiLinestring)
@@ -208,13 +211,13 @@ class CartoGewaesserPly:
 class CartoGewaesserPly10(Base, CartoGewaesserPly, Vector):
     __tablename__ = 'dkm10_gewaesser_ply'
     __bodId__ = 'dkm10_gewaesser_ply'
-    name = Column('name', Text)
+    name = Column('name', Unicode)
 
 
 class CartoGewaesserPly500(Base, CartoGewaesserPly, Vector):
     __tablename__ = 'dkm500_gewaesser_ply'
     __bodId__ = 'dkm500_gewaesser_ply'
-    name = Column('namn1', Text)
+    name = Column('namn1', Unicode)
 
 register(CartoGewaesserPly10)
 register(CartoGewaesserPly500)
@@ -230,14 +233,14 @@ class CartoSiedlungsname:
 class CartoSiedlungsname10(Base, CartoSiedlungsname, Vector):
     __tablename__ = 'dkm10_siedlungsname'
     __bodId__ = 'dkm10_siedlungsname'
-    name = Column('name', Text)
+    name = Column('name', Unicode)
     the_geom = Column(GeomMultiPolygon)
 
 
 class CartoSiedlungsname500(Base, CartoSiedlungsname, Vector):
     __tablename__ = 'dkm500_ortschaft_pkt'
     __bodId__ = 'dkm500_ortschaft_pkt'
-    name = Column('namn1', Text)
+    name = Column('namn1', Unicode)
     the_geom = Column(GeomPoint)
 
 register(CartoSiedlungsname10)
@@ -248,7 +251,7 @@ class CartoSiedlungsnameAnno:
     __table_args__ = ({'schema': 'karto', 'autoload': False})
     id = Column('objectid', Integer, primary_key=True)
     annotationclassid = Column('annotationclassid', Integer)
-    textstring = Column('textstring', Text)
+    textstring = Column('textstring', Unicode)
     fontsize = Column('fontsize', Integer)
     bold = Column('bold', Integer)
     italic = Column('italic', Integer)
@@ -282,16 +285,33 @@ register(CartoSiedlungsnameAnno500)
 # Swissnames only
 
 
+class Swissnames3DPoints(Base, Vector):
+    __tablename__ = 'swissnames3d_point'
+    __table_args__ = ({'schema': 'tlm', 'autoload': False})
+    __bodId__ = 'ch.swisstopo.swissnames3d_point'
+    id = Column('bgdi_id', Integer, primary_key=True)
+    name = Column('name', Unicode)
+    namen_typ = Column('namen_typ', Unicode)
+    objektart = Column('objektart', Unicode)
+    objektklasse = Column('objektklasse', Unicode)
+    gebauede = Column('gebauede', Unicode)
+    bgdi_label_sphinx = Column('bgdi_label_sphinx', Unicode)
+    bgdi_zoomlevel = Column('bgdi_zoomlevel', Unicode)
+    the_geom = Column(GeomMultiPoint)
+
+register(Swissnames3DPoints)
+
+
 class Swissnames3d:
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
     __bodId__ = 'ch.swisstopo.swissnames3d'
     id = Column('bgdi_id', Integer, primary_key=True)
-    objektart = Column('objektart', Text)
-    objektklasse = Column('objektklasse', Text)
-    name = Column('name', Text)
-    sprachcode = Column('sprachcode', Text)
-    namen_typ = Column('namen_typ', Text)
-    bgdi_type = Column('bgdi_type', Text)
+    objektart = Column('objektart', Unicode)
+    objektklasse = Column('objektklasse', Unicode)
+    name = Column('name', Unicode)
+    sprachcode = Column('sprachcode', Unicode)
+    namen_typ = Column('namen_typ', Unicode)
+    bgdi_type = Column('bgdi_type', Unicode)
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
 
