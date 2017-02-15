@@ -324,6 +324,9 @@ def main():
     try:
         conf = parseJsonConf(sys.argv[1])
     except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                 limit=10, file=sys.stdout)
         print 'Error while parsing json file'
         raise Exception(e)
 
