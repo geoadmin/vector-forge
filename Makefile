@@ -37,8 +37,8 @@ all: install template lint
 install:
 	@if [ ! -d $(VENV) ]; \
 	then \
-		virtualenv $(VENV) --distribute; \
-		$(PIP_CMD) install --upgrade pip; \
+		virtualenv $(VENV); \
+		$(PIP_CMD) install --upgrade pip setuptools; \
 	fi; \
 	$(PIP_CMD) install -e .
 	npm install
