@@ -7,6 +7,144 @@
   "maxZoom": 22,
   "gutter": 10,
   "isAnnotationLayer": false,
-  "filters": null,
-  "lods": null
+  "filters": [
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Aussichtsturm')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Gasthof abgelegen')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Schiessstand')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Schutzhuette')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Sporthalle')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Stadion')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Leuchtturm')",
+    "(objektart = 'Gebaeude Einzelhaus' and gebauede = 'Observatorium')",
+    "(objektart = 'Kapelle')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Aussichtsturm')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Gasthof abgelegen')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Schiessstand')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Schutzhuette')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Sporthalle')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Stadion')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Leuchtturm')",
+    "(objektart = 'Offenes Gebaeude' and gebauede = 'Observatorium')",
+    "(objektart = 'Sakrales Gebaeude')",
+    "(objektart = 'Turm' and gebauede = 'Aussichtsturm')",
+    "(objektart = 'Turm' and gebauede = 'Leuchtturm')",
+    "(objektart = 'Turm' and gebauede = 'Observatorium')",
+    "(objektart = 'Erratischer Block')",
+    "(objektart = 'Felsblock')",
+    "(objektart = 'Aussichtspunkt')",
+    "(objektart = 'Bildstock')",
+    "(objektart = 'Brunnen')",
+    "(objektart = 'Denkmal')",
+    "(objektart = 'Grotte, Hoehle')",
+    "(objektart = 'Landesgrenzstein')",
+    "(objektart = 'Quelle')",
+    "(objektart = 'Wasserfall')",
+    "(objektart = 'Flurname swisstopo')",
+    "(objektart = 'Lokalname swisstopo')",
+    "(objektart = 'Alpiner Gipfel')",
+    "(objektart = 'Felskopf')",
+    "(objektart = 'Gipfel')",
+    "(objektart = 'Hauptgipfel')",
+    "(objektart = 'Haupthuegel')",
+    "(objektart = 'Huegel')",
+    "(objektart = 'Pass')",
+    "(objektart = 'Strassenpass')",
+    "(objektart = 'Ausfahrt')",
+    "(objektart = 'Ein- und Ausfahrt')",
+    "(objektart = 'Verzweigung')",
+    "(objektart = 'Verladestation')",
+    "(objektart = 'Zollamt 24h 24h')",
+    "(objektart = 'Zollamt 24h eingeschraenkt')",
+    "(objektart = 'Haltestelle Bahn')",
+    "(objektart = 'Haltestelle Bus')",
+    "(objektart = 'Haltestelle Schiff')",
+    "(objektart = 'Uebrige Bahnen')"
+  ],
+  "lods": {
+    "7": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33],
+      "operatorfilter": "OR"
+    },
+    "8": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33],
+      "operatorfilter": "OR"
+    },
+    "9": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33, 39, 30],
+      "operatorfilter": "OR"
+    },
+    "10": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33, 36, 39, 40],
+      "operatorfilter": "OR"
+    },
+    "11": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33, 36, 39, 40],
+      "operatorfilter": "OR"
+    },
+    "12": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [33, 36, 39, 40],
+      "operatorfilter": "OR"
+    },
+    "13": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [17, 33, 35, 36, 39, 40, 41, 42, 43, 44, 45, 46, 48, 49, 50],
+      "operatorfilter": "OR"
+    },
+    "14": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [0, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 48, 49, 50],
+      "operatorfilter": "OR"
+    },
+    "15": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [0, 1, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+      "operatorfilter": "OR"
+    },
+    "16": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+      "operatorfilter": "OR"
+    },
+    "22": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+      "operatorfilter": "OR"
+    },
+    "23": {
+      "tablename": "tlm.swissnames3d_point",
+      "filterindices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 41, 42, 43, 44, 45, 46, 47],
+      "operatorfilter": "OR"
+    }
+  }
 }
