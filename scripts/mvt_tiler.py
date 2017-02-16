@@ -82,7 +82,7 @@ def extendBounds(b, d):
 
 def applyQueryFilters(query, filterIndices, operatorFilter):
     # Apply custom filters
-    if filters is not None:
+    if filters is not None and filterIndices is not None:
         query = query.filter(
             createQueryFilter(
                 filters,
