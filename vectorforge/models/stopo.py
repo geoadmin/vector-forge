@@ -288,7 +288,7 @@ register(CartoSiedlungsnameAnno500)
 class Swissnames3DPoints(Base, Vector):
     __tablename__ = 'swissnames3d_point'
     __table_args__ = ({'schema': 'tlm', 'autoload': False})
-    __bodId__ = 'ch.swisstopo.swissnames3d_point'
+    __bodId__ = 'ch.swisstopo.swissnames3d_point_512'
     id = Column('bgdi_id', Integer, primary_key=True)
     name = Column('name', Unicode)
     namen_typ = Column('namen_typ', Unicode)
@@ -420,7 +420,7 @@ register(Swissnames3dRaster13)
 
 def getModelFromBodId(bodId, tablename=None):
     models = layers.get(bodId)
-    if len(models) == 1:
+    if models and len(models) == 1:
         return models[0]
     if tablename is not None:
         for model in models:

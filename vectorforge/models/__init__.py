@@ -87,7 +87,7 @@ class Vector(object):
         return cls.__mapper__.columns[geometryColumnName]
 
     @classmethod
-    def annotationColumn(cls, annotationColumnName='textstring'):
+    def annotationColumn(cls, annotationColumnName='name'):
         if annotationColumnName not in cls.__mapper__.columns:
             raise NoSuchColumnError()
         return cls.__mapper__.columns[annotationColumnName]
