@@ -49,7 +49,10 @@ const sections = [
       {
         name: 'tippecanoe_extensions',
         description: 'Array with tippecanoe extensions to add to features. ' +
-                     '\nExample: \'[{ "maxzoom": 9, "minzoom": 4 }]\''
+                     '\nExample 1: \'[{ "maxzoom": 9, "minzoom": 4 }]\'' +
+                     '\nExample 2: \'[{ "maxzoom": "MaxZoom", "minzoom": ' +
+                     '"MinZoom" }]\'. The actual value is taken from an ' +
+                     'attribute of the feature, e.g. MaxZoom and MinZoom.'
       },
       {
         name: 'infile',
@@ -66,7 +69,8 @@ const sections = [
 ]
 const usage = commandLineUsage(sections);
 
-if (options.help == true || options.infile == undefined) {
+if (options.help == true || options.infile == undefined ||
+    options.tippecanoe_extensions == undefined) {
   console.log(usage);
   return;
 } 
@@ -74,18 +78,21 @@ console.log('\nInput:  \t' + options.infile);
 
 // For now we take only the first pattern and extension.
 // TODO: Add logic to handle multiple patterns.
-var patternKey = options.patterns === '' ? '' :
-    JSON.parse(options.patterns)[0].split(':')[0];
-var patternValue = options.patterns === '' ? '' :
-    JSON.parse(options.patterns)[0].split(':')[1];
+if (options.patterns) {
+  var patternKey = options.patterns === '' ? '' :
+      JSON.parse(options.patterns)[0].split(':')[0];
+  var patternValue = options.patterns === '' ? '' :
+      JSON.parse(options.patterns)[0].split(':')[1];
+  console.log('Pattern:\t"' + patternKey + ':' + patternValue + '"');
+}
 var extension = JSON.parse(options.tippecanoe_extensions)[0];
-console.log('Pattern:\t"' + patternKey + ':' + patternValue + '"');
 console.log('Extension:\t' + JSON.stringify(extension));
 
 // Parse GeoJSON with JSONPath features.*.geometry
 var numFeatures = 0, numModifiedFeatures = 0;
 var readStream = fs.createReadStream(options.infile, {enicoding: 'utf8'});
 var readJSONStream = JSONStream.parse('features.*');
+
 
 // Modifies the GeoJSON feature.
 var modifyGeoJSON = function(data) {
@@ -102,7 +109,28 @@ var modifyGeoJSON = function(data) {
   }
   ++numModifiedFeatures;
   // Adds a tippecanoe extension.
-  data.tippecanoe = extension;
+  var featureExtension = {};
+  for (key in extension) {
+    switch(key) {
+      case 'minzoom':
+      case 'maxzoom':
+        if (parseInt(data.properties[extension[key]]) > 0) {
+          featureExtension[key] = parseInt(data.properties[extension[key]]);
+        } else if (parseInt(extension[key]) > 0) {
+          featureExtension[key] = parseInt(extension[key]);
+        }
+        break;
+      case 'layer':
+        if (data.properties.hasOwnProperty(extension[key])) {
+          featureExtension[key] = data.properties[extension[key]];
+        } else {
+          featureExtension[key] = extension[key];
+        }
+        break;
+      default:
+    }
+  }
+  data.tippecanoe = featureExtension;
   
   return data;
 }
