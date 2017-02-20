@@ -25,6 +25,7 @@ function prepare_tippecanoe {
     echo "Preparing geojson..."
     echo "node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --tippecanoe_extensions '[{ "maxzoom": "'${MAX_ZOOM}'", "minzoom": "'${MIN_ZOOM}'"}]'"
     node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --tippecanoe_extensions '[{ "maxzoom": "'${MAX_ZOOM}'", "minzoom": "'${MIN_ZOOM}'"}]'
+    # node --harmony scripts/geojson-modifier.js --infile ~/data/swissnames/Labels.json --outfile ~/data/swissnames/test.json --config configs/ch.swisstopo.swissnames3d_point.json
   else
     echo "Skipping geosjon preparation, ${INFILE_NAME}_modified.json already exists"
   fi
