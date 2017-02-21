@@ -1,0 +1,131 @@
+{
+  "layerBodId": "ch.swisstopo.swissnames3d_labels",
+  "tileSizePx": 512,
+  "srid": 3857,
+  "extent": [572280.03, 5684599.67, 1277841.35, 6145546.44],
+  "minZoom": 7,
+  "maxZoom": 22,
+  "gutter": 15,
+  "isAnnotationLayer": false,
+  "filters": [
+    "(objektart = 'Felsblock')",
+    "(objektart = 'Hauptgipfel')",
+    "(objektart = 'Pass')",
+    "(objektart = 'Strassenpass')",
+    "(objektart = 'Ausfahrt')",
+    "(objektart = 'Ein- und Ausfahrt')",
+    "(objektart = 'Verzweigung')",
+    "(objektart = 'Sakrales Gebaeude')",
+    "(objektart = 'Alpiner Gipfel')",
+    "(objektart = 'Gipfel')",
+    "(objektart = 'Verladestation')",
+    "(objektart = 'Zollamt 24h 24h')",
+    "(objektart = 'Zollamt 24h eingeschraenkt')",
+    "(objektart = 'Haltestelle Bus')",
+    "(objektart = 'Haltestelle Schiff')",
+    "(objektart = 'Uebrige Bahnen')",
+    "(objektart = 'Kleinbahn')",
+    "(objektart = 'Normalspur')",
+    "(objektart = 'Gebiet')",
+    "(objektart = 'Grossregion')",
+    "(objektart = 'Landschaftsname')",
+    "(objektart = 'Gletscher')",
+    "(objektart = 'Grat')",
+    "(objektart = 'Massiv')",
+    "(objektart = 'Ort')",
+    "(objektart = 'Ortsteil')",
+    "(objektart = 'Quartier')",
+    "(objektart = 'Quartierteil')",
+    "(objektart = 'See')",
+    "(objektart = 'Flugfeldareal')",
+    "(objektart = 'Flugplatzareal')",
+    "(objektart = 'Flughafenareal')"
+  ],
+  "lods": {
+    "7": {
+      "tablename": "",
+      "filterindices": [0, 7, 18, 19, 20, 24, 25, 26, 27],
+      "operatorfilter": "OR"
+    },
+    "8": {
+      "tablename": "",
+      "filterindices": [0, 7, 18, 19, 20, 22, 23, 24, 25, 26, 27],
+      "operatorfilter": "OR"
+    },
+    "9": {
+      "tablename": "",
+      "filterindices": [0, 2, 3, 7, 18, 19, 20, 22, 23, 24, 25, 26, 27],
+      "operatorfilter": "OR"
+    },
+    "10": {
+      "tablename": "",
+      "filterindices": [0, 1, 2, 3, 7, 9, 18, 19, 20, 22, 23, 24, 25, 26, 27, 30],
+      "operatorfilter": "OR"
+    },
+    "11": {
+      "tablename": "",
+      "filterindices": [0, 1, 2, 3, 7, 9, 18, 19, 20, 22, 23, 24, 25, 26, 27, 30],
+      "operatorfilter": "OR"
+    },
+    "12": {
+      "tablename": "",
+      "filterindices": [0, 1, 2, 3, 7, 8, 9, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30],
+      "operatorfilter": "OR"
+    },
+    "13": {
+      "tablename": "",
+      "filterindices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+      "operatorfilter": "OR"
+    },
+    "14": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "",
+      "filterindices": null,
+      "operatorfilter": null
+    }
+  }
+}
