@@ -25,7 +25,7 @@ help:
 	@echo "- autolint           Autolint all python files"
 	@echo "- all                All of the above"
 	@echo "- dev                Enter dev shell"
-	@echo "- upload							Upload a tileset to MapBox for styling purposes. USAGE: make upload TILESET=<pathtotileset> TILESETID=<id>"
+	@echo "- upload             Upload a tileset to MapBox for styling purposes. USAGE: make upload TILESET=<pathtotileset> TILESETID=<id>"
 	@echo "- clean              Clean all generated files and folders"
 	@echo
 	@echo "Variables:"
