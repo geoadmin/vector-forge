@@ -13,6 +13,7 @@ var commandLineArgs = require('command-line-args'),
     commandLineUsage = require('command-line-usage'),
     es = require('event-stream'),
     JSONStream = require('JSONStream'),
+    userHome = require('user-home'),
     fs = require('fs');
 
 
@@ -75,6 +76,10 @@ const sections = [
 ]
 const usage = commandLineUsage(sections);
 
+var tildePath = function(path) {
+  return path.replace(/^~($|\/)/, userHome + '/');
+};
+
 if (options.help == true || options.infile == undefined ||
     (options.tippecanoe_extensions == undefined && options.config === undefined)) {
   console.log(usage);
@@ -89,10 +94,10 @@ if (options.patterns) {
       JSON.parse(options.patterns)[0].split(':')[1];
   console.log('Pattern:\t"' + patternKey + ':' + patternValue + '"');
 } else if (options.config) {
-  var readStreamConfig = fs.createReadStream(options.config, {encoding: 'utf8'});
+  var readStreamConfig = fs.createReadStream(tildePath(options.config), {encoding: 'utf8'});
   var readJSONStreamConfig = JSONStream.parse();
+  console.log('Config:\t' + options.config);
 }
-
 var extension;
 if (options.tippecanoe_extension) {
   var extension = JSON.parse(options.tippecanoe_extensions)[0];
@@ -101,10 +106,10 @@ if (options.tippecanoe_extension) {
 
 // Parse GeoJSON with JSONPath features.*.geometry
 var numFeatures = 0, numModifiedFeatures = 0;
-var readStream = fs.createReadStream(options.infile, {encoding: 'utf8'});
+var readStream = fs.createReadStream(tildePath(options.infile), {encoding: 'utf8'});
 var readJSONStream = JSONStream.parse('features.*');
 
-var createTippecanoeExtension = function(data) {
+var createTippecanoeExtensionFromGlobals = function(data) {
   var featureExtension = {};
   for (key in extension) {
     switch(key) {
@@ -127,7 +132,29 @@ var createTippecanoeExtension = function(data) {
     }
   }
   return featureExtension;
-}
+};
+
+var createTippecanoeExtensionFromConfig = function(data, config) {
+  // Extension from vectorforge config
+  var dataPropertyValue,
+      featureExtension,
+      confProperty = config.propertyName;
+  // Property name should be case insensitive
+  if (data.properties.hasOwnProperty(confProperty)) {
+    dataPropertyValue = data.properties[confProperty];
+  } else if (data.properties.hasOwnProperty(confProperty.toUpperCase())) {
+    dataPropertyValue = data.properties[confProperty.toUpperCase()];
+  }
+  if (config.properties.hasOwnProperty(dataPropertyValue)) {
+    featureExtension = config.properties[dataPropertyValue];
+  } else {
+    featureExtension = {
+      minzoom: config.minzoomDefault,
+      maxzoom: config.maxzoomDefault
+    }
+  }
+  return featureExtension;
+};
 
 // Modifies the GeoJSON feature.
 var modifyGeoJSON = function(data) {
@@ -146,26 +173,9 @@ var modifyGeoJSON = function(data) {
   var ext;
   // Add global extension
   if (extension) {
-    ext = createTippecanoeExtension(data);
+    ext = createTippecanoeExtensionFromGlobals(data);
   } else if (config) {
-    ext = {};
-    // Extension from vectorforge config
-    var dataPropertyValue;
-    var confProperty = config.propertyName;
-    // Property name should be case insensitive
-    if (data.properties.hasOwnProperty(confProperty)) {
-      dataPropertyValue = data.properties[confProperty];
-    } else if (data.properties.hasOwnProperty(confProperty.toUpperCase())) {
-      dataPropertyValue = data.properties[confProperty.toUpperCase()];
-    }
-    if (config.properties.hasOwnProperty(dataPropertyValue)) {
-      ext = config.properties[dataPropertyValue];
-    } else {
-      ext = {
-        minzoom: config.minzoomDefault,
-        maxzoom: config.maxzoomDefault
-      }
-    }
+    ext = createTippecanoeExtensionFromConfig(data, config);
   }
   // Adds a tippecanoe extension.
   data.tippecanoe = ext;
@@ -198,10 +208,10 @@ var readAndWriteGeoJSON = function() {
       console.log('Footer:\n' + JSON.stringify(data));
     }
 
-    console.log('\nResults written to \'' + options.outfile + '\'.');
+    console.log('\nResults written to \'' + tildePath(options.outfile) + '\'.');
   });
 
-  var writeStream = fs.createWriteStream(options.outfile);
+  var writeStream = fs.createWriteStream(tildePath(options.outfile));
   // The writeStream expects strings and not JSON objects.
   var jsonToStrings = JSONStream.stringify(
       open='[\n', sep=',\n', close='\n]\n');
