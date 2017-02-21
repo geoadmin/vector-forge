@@ -297,7 +297,9 @@ if (readStreamConfig) {
     config.maxzoom = maxZoom;
     config.minzoomDefault = minZoomDefault;
     config.maxzoomDefault = maxZoomDefault;
-    readAndWriteGeoJSON()
+    console.log('Configuration:');
+    console.log(config);
+    readAndWriteGeoJSON();
   });
   readStreamConfig
     .pipe(readJSONStreamConfig);
