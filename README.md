@@ -12,6 +12,8 @@ Add your AWS access key in `.boto`.
 
 Add your Database username and password in `.pgpass`
 
+Export your `MapboxAccessToken` in your `.bashrc`
+
 Create your own `rc` file:
 
     $ cp rc_ltgal rc_{username}
