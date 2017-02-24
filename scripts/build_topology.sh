@@ -46,16 +46,16 @@ function checkqueue {
 }
 
 build_topology() {
-    try=1;sql="begin;SET work_mem='1GB';UPDATE karto.dkm10_bodenbedeckung SET the_geom_topo = toTopoGeom(the_geom, 'topology_karto_dkm10', 1 ) where  objectid = ${i};commit;";psql -c "${sql}" -d stopo_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
-    try=2;sql="begin;SET work_mem='1GB';UPDATE karto.dkm10_bodenbedeckung SET the_geom_topo = toTopoGeom(the_geom, 'topology_karto_dkm10', 1, 0.1 ) where  objectid = ${i};commit;";psql -c "${sql}" -d stopo_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
-    try=3;sql="begin;SET work_mem='1GB';UPDATE karto.dkm10_bodenbedeckung SET the_geom_topo = toTopoGeom(the_geom, 'topology_karto_dkm10', 1, 0.5 ) where  objectid = ${i};commit;";psql -c "${sql}" -d stopo_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
-    try=4;sql="begin;SET work_mem='1GB';UPDATE karto.dkm10_bodenbedeckung SET the_geom_topo = toTopoGeom(the_geom, 'topology_karto_dkm10', 1, 1.0 ) where  objectid = ${i};commit;";psql -c "${sql}" -d stopo_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
-    try=5;sql="begin;SET work_mem='1GB';UPDATE karto.dkm10_bodenbedeckung SET the_geom_topo = toTopoGeom(the_geom, 'topology_karto_dkm10', 1, 1.5 ) where  objectid = ${i};commit;";psql -c "${sql}" -d stopo_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
+    try=1;sql="begin;SET work_mem='1GB';UPDATE swissnames3d_labels_lines SET the_geom_topo = toTopoGeom(the_geom, 'topology_swissnames3d_labels_lines', 1 ) where  uuid = ${i};commit;";psql -h pg-0.dev.bgdi.ch -U pgkogis -c "${sql}" -d stopo_test_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
+    try=2;sql="begin;SET work_mem='1GB';UPDATE swissnames3d_labels_lines SET the_geom_topo = toTopoGeom(the_geom, 'topology_swissnames3d_labels_lines', 1, 0.1 ) where  uuid = ${i};commit;";psql -h pg-0.dev.bgdi.ch -U pgkogis -c "${sql}" -d stopo_test_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
+    try=3;sql="begin;SET work_mem='1GB';UPDATE swissnames3d_labels_lines SET the_geom_topo = toTopoGeom(the_geom, 'topology_swissnames3d_labels_lines', 1, 0.5 ) where  uuid = ${i};commit;";psql -h pg-0.dev.bgdi.ch -U pgkogis -c "${sql}" -d stopo_test_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
+    try=4;sql="begin;SET work_mem='1GB';UPDATE swissnames3d_labels_lines SET the_geom_topo = toTopoGeom(the_geom, 'topology_swissnames3d_labels_lines', 1, 1.0 ) where  uuid = ${i};commit;";psql -h pg-0.dev.bgdi.ch -U pgkogis -c "${sql}" -d stopo_test_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
+    try=5;sql="begin;SET work_mem='1GB';UPDATE swissnames3d_labels_lines SET the_geom_topo = toTopoGeom(the_geom, 'topology_swissnames3d_labels_lines', 1, 1.5 ) where  uuid = ${i};commit;";psql -h pg-0.dev.bgdi.ch -U pgkogis -c "${sql}" -d stopo_test_master &> /tmp/topo_insert_${i}.log && { echo "import success COMMIT ${i} with command ${sql}, try: ${try}" &> /tmp/topo_insert_${i}.log; return 0; }
 
     echo "ERROR import failed ${i} after ${try} try, last sql: ${sql}" &>> /tmp/topo_insert_${i}.log
 }
 
-for i in $(psql -qAt -c "select objectid from karto.dkm10_bodenbedeckung WHERE the_geom_topo IS NULL;" -d stopo_master)
+for i in $(psql -h pg-0.dev.bgdi.ch -U pgkogis -qAt -c "select uuid from swissnames3d_labels_lines WHERE the_geom_topo IS NULL;" -d stopo_test_master)
 do
     ( build_topology 1> /dev/null ) &
     PID=$!
