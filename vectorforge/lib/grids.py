@@ -29,7 +29,8 @@ class GlobalGeodeticTileGrid:
         return self.geodetic.Resolution(zoom)
 
 
-# Stolen from http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/
+# Stolen from
+# http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/
 class GlobalMercator(object):
     """
     TMS Global Mercator Profile
