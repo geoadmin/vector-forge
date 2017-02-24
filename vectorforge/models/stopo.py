@@ -4,7 +4,7 @@ from sqlalchemy import Column, Unicode, Integer, Float
 from sqlalchemy.types import Numeric
 from geoalchemy2.types import Geometry
 
-from vectorforge.models import init, bases, register, Vector, layers
+from vectorforge.models import init, bases, register, Vector
 
 
 if bases.get('stopo') is None:
@@ -416,13 +416,3 @@ register(Swissnames3dRaster10)
 register(Swissnames3dRaster11)
 register(Swissnames3dRaster12)
 register(Swissnames3dRaster13)
-
-
-def getModelFromBodId(bodId, tablename=None):
-    models = layers.get(bodId)
-    if models and len(models) == 1:
-        return models[0]
-    if tablename is not None:
-        for model in models:
-            if model.__tablename__ == tablename:
-                return model

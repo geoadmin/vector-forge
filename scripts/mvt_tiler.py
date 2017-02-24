@@ -8,6 +8,8 @@ import sys
 import json
 import traceback
 import mapbox_vector_tile
+import vectorforge.models.stopo
+import vectorforge.models.stopo_test
 
 from gatilegrid import GeoadminTileGrid
 from poolmanager import PoolManager
@@ -19,7 +21,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import scoped_session, sessionmaker
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKBElement
-from vectorforge.models.stopo import getModelFromBodId
+from vectorforge.models import getModelFromBodId
 from vectorforge.lib.helpers import gzipFileObject
 from vectorforge.lib.boto_s3 import s3Connect, getBucket, writeToS3
 from vectorforge.lib.grids import GlobalGeodeticTileGrid, GlobalMercatorTileGrid
