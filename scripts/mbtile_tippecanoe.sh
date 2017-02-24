@@ -6,18 +6,22 @@ INFILE=
 MIN_ZOOM=0
 MAX_ZOOM=22
 CONFIG=
+FORCE=false
+SKIPMODIFY=false
 
 function usage {
   echo "Usage:"
   echo ""
-  echo "\t-h --help"
-  echo "\t--source=$INFILE"
-  echo "\t--minzoom=$MIN_ZOOM"
-  echo "\t--maxzoom=$MAX_ZOOM"
-  echo "\t--config=$CONFIG"
-  echo "\tUsage examples:"
-  echo "\t./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=7 --maxzoom=22"
-  echo "\t./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --config=configs/ch.swisstopo.swissnames3d_point.json --minzoom=7 --maxzoom=22"
+  echo "-h --help"
+  echo "--source=$INFILE"
+  echo "--minzoom=$MIN_ZOOM"
+  echo "--maxzoom=$MAX_ZOOM"
+  echo "--config=$CONFIG"
+  echo "-f --force"
+  echo "-s --skipmodify"
+  echo "Usage examples:"
+  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=7 --maxzoom=22"
+  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --config=configs/ch.swisstopo.swissnames3d_point.json --minzoom=7 --maxzoom=22"
 }
 
 function setup_tippecanoe {
@@ -32,27 +36,36 @@ function setup_tippecanoe {
 }
 
 function prepare_tippecanoe {
-  if [ ! -f "${INFILE_NAME}_modified.json" ]; then
+  if [ ! -f "${INFILE_NAME_MODIFIED}.json" ] || [ "$FORCE" = true ] && [ $SKIPMODIFY = false ]; then
     cd "${HOME}/vector-forge"
+    rm -f "${INFILE_NAME_MODIFIED}.json"
     echo "Preparing geojson..."
     if [ -z "$CONFIG" ]; then
-      echo "node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --tippecanoe_extensions '[{ "maxzoom": "\'${MAX_ZOOM}\'", "minzoom": "\'${MIN_ZOOM}\'"}]'"
-      node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --tippecanoe_extensions '[{ "maxzoom": "'${MAX_ZOOM}'", "minzoom": "'${MIN_ZOOM}'"}]'
+      MODIFYGEOJSON_CMD="node --harmony scripts/geojson-modifier.js --infile $INFILE \
+                        --outfile "${INFILE_NAME_MODIFIED}.json" --tippecanoe_extensions '[{ "maxzoom": "'${MAX_ZOOM}'", "minzoom": "'${MIN_ZOOM}'"}]'"
+      echo $MODIFYGEOJSON_CMD
+      eval $MODIFYGEOJSON_CMD
     else
-      echo "node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --config $CONFIG"
-      node --harmony scripts/geojson-modifier.js --infile $INFILE --outfile "${INFILE_NAME}_modified.json" --config $CONFIG
+      MODIFYGEOJSON_CMD="node --harmony scripts/geojson-modifier.js --infile $INFILE \
+                        --outfile "${INFILE_NAME_MODIFIED}.json" --config $CONFIG"
+      echo $MODIFYGEOJSON_CMD
+      eval $MODIFYGEOJSON_CMD
     fi
   else
-    echo "Skipping geosjon preparation, ${INFILE_NAME}_modified.json already exists"
+    echo "Skipping geosjon preparation"
   fi
 }
 
 function process_tippecanoe {
-  if [ ! -f "${INFILE_NAME}.mbtiles" ]; then
+  TIPPECANOE_CMD="./tippecanoe -o "${INFILE_NAME}.mbtiles" \
+                 --drop-rate=1.35 --simplification=10 --projection='EPSG:3857' \
+                 "${INFILE_NAME_TIPPECANOE}.json" --minimum-zoom=$MIN_ZOOM --maximum-zoom=$MAX_ZOOM"
+  if [ ! -f "${INFILE_NAME_TIPPECANOE}.mbtiles" ] || [ $FORCE = true ]; then
     cd "${HOME}/tippecanoe"
+    rm -f "${INFILE_NAME}.mbtiles"
     echo "Preparing mbtiles..."
-    echo "./tippecanoe -o "${INFILE_NAME}.mbtiles" --force -rg --projection 'EPSG:3857' "${INFILE_NAME}_modified.json""
-    ./tippecanoe -o "${INFILE_NAME}.mbtiles" --force -rg --projection 'EPSG:3857' "${INFILE_NAME}_modified.json" --minimum-zoom $MIN_ZOOM --maximum-zoom $MAX_ZOOM
+    echo $TIPPECANOE_CMD
+    eval $TIPPECANOE_CMD
   else
     echo "Skipping tile creations file ${INFILE_NAME}.mbtiles already exists"
   fi
@@ -80,6 +93,12 @@ while [ "$1" != "" ]; do
             CONFIG=$VALUE
             eval CONFIG=$CONFIG
             ;;
+        -f | --force)
+            FORCE=true
+            ;;
+        -s | --skipmodify)
+            SKIPMODIFY=true
+            ;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage
@@ -89,7 +108,14 @@ while [ "$1" != "" ]; do
     shift
 done
 
+
 INFILE_NAME=${INFILE::(-5)}
+INFILE_NAME_MODIFIED="${INFILE_NAME}_modified"
+if [ $SKIPMODIFY = true ]; then
+  INFILE_NAME_TIPPECANOE=$INFILE_NAME
+else
+  INFILE_NAME_TIPPECANOE=$INFILE_NAME_MODIFIED
+fi
 
 echo $INFILE
 echo $CONFIG
