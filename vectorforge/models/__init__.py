@@ -14,6 +14,14 @@ from geoalchemy2.types import Geometry
 from shapely.geometry import box
 
 
+
+def _get_dbname(dbname):
+    dbname_regex = r'(^[A-Za-z_]*)_(master|dev|int|prod)'
+    matches = re.match(dbname_regex, dbname)
+    name = matches.groups()[0]
+    return name
+
+
 class Engines(object):
 
     def __init__(self, engines={}):
@@ -26,11 +34,12 @@ class Engines(object):
             return None
 
     def add(self, engine, dbname):
-        name = dbname.split('_')[0]
+        name = _get_dbname(dbname)
         self.engines[name] = engine
 
 
 class Bases(object):
+
 
     def __init__(self):
         self.bases = {}
@@ -42,7 +51,7 @@ class Bases(object):
             return None
 
     def add(self, engine, dbname):
-        name = dbname.split('_')[0]
+        name = _get_dbname(dbname)
         base = declarative_base()
         base.metadata.bind = engine
         self.bases[name] = base
