@@ -99,7 +99,7 @@ if (options.patterns) {
   console.log('Config:\t' + options.config);
 }
 var extension;
-if (options.tippecanoe_extension) {
+if (options.tippecanoe_extensions) {
   var extension = JSON.parse(options.tippecanoe_extensions)[0];
   console.log('Extension:\t' + JSON.stringify(extension));
 }
