@@ -3,127 +3,111 @@
   "tileSizePx": 512,
   "srid": 3857,
   "extent": [572280.03, 5684599.67, 1277841.35, 6145546.44],
-  "minZoom": 7,
-  "maxZoom": 22,
-  "gutter": 15,
+  "minZoom": 6,
+  "maxZoom": 18,
+  "gutter": 20,
   "isAnnotationLayer": false,
   "filters": [
-    "(objektart = 'Felsblock')",
-    "(objektart = 'Hauptgipfel')",
-    "(objektart = 'Pass')",
-    "(objektart = 'Strassenpass')",
-    "(objektart = 'Ausfahrt')",
-    "(objektart = 'Ein- und Ausfahrt')",
-    "(objektart = 'Verzweigung')",
-    "(objektart = 'Sakrales Gebaeude')",
-    "(objektart = 'Alpiner Gipfel')",
-    "(objektart = 'Gipfel')",
-    "(objektart = 'Verladestation')",
-    "(objektart = 'Zollamt 24h 24h')",
-    "(objektart = 'Zollamt 24h eingeschraenkt')",
-    "(objektart = 'Haltestelle Bus')",
-    "(objektart = 'Haltestelle Schiff')",
-    "(objektart = 'Uebrige Bahnen')",
-    "(objektart = 'Kleinbahn')",
-    "(objektart = 'Normalspur')",
-    "(objektart = 'Gebiet')",
-    "(objektart = 'Grossregion')",
-    "(objektart = 'Landschaftsname')",
-    "(objektart = 'Gletscher')",
-    "(objektart = 'Grat')",
-    "(objektart = 'Massiv')",
-    "(objektart = 'Ort')",
-    "(objektart = 'Ortsteil')",
-    "(objektart = 'Quartier')",
-    "(objektart = 'Quartierteil')",
-    "(objektart = 'See')",
-    "(objektart = 'Flugfeldareal')",
-    "(objektart = 'Flugplatzareal')",
-    "(objektart = 'Flughafenareal')"
+    "minzoom >= 6",
+    "minzoom >= 7",
+    "minzoom >= 8",
+    "minzoom >= 9",
+    "minzoom >= 10",
+    "minzoom >= 11",
+    "minzoom >= 12",
+    "minzoom >= 13",
+    "minzoom >= 14",
+    "minzoom >= 15",
+    "minzoom >= 16"
   ],
   "lods": {
+    "6": {
+      "tablename": "swissnames3d_labels_points",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
     "7": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 7, 18, 19, 20, 24, 25, 26, 27],
-      "operatorfilter": "OR"
+      "filterindices": [1],
+      "operatorfilter": null
     },
     "8": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 7, 18, 19, 20, 22, 23, 24, 25, 26, 27],
-      "operatorfilter": "OR"
+      "filterindices": [2],
+      "operatorfilter": null
     },
     "9": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 2, 3, 7, 18, 19, 20, 22, 23, 24, 25, 26, 27],
-      "operatorfilter": "OR"
+      "filterindices": [3],
+      "operatorfilter": null
     },
     "10": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 1, 2, 3, 7, 9, 18, 19, 20, 22, 23, 24, 25, 26, 27, 30],
-      "operatorfilter": "OR"
+      "filterindices": [4],
+      "operatorfilter": null
     },
     "11": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 1, 2, 3, 7, 9, 18, 19, 20, 22, 23, 24, 25, 26, 27, 30],
-      "operatorfilter": "OR"
+      "filterindices": [5],
+      "operatorfilter": null
     },
     "12": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 1, 2, 3, 7, 8, 9, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30],
-      "operatorfilter": "OR"
+      "filterindices": [6],
+      "operatorfilter": null
     },
     "13": {
       "tablename": "swissnames3d_labels_points",
-      "filterindices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-      "operatorfilter": "OR"
+      "filterindices": [7],
+      "operatorfilter": null
     },
     "14": {
-      "tablename": "",
-      "filterindices": null,
+      "tablename": "swissnames3d_labels_points",
+      "filterindices": [8],
       "operatorfilter": null
     },
     "15": {
-      "tablename": "",
-      "filterindices": null,
+      "tablename": "swissnames3d_labels_points",
+      "filterindices": [9],
       "operatorfilter": null
     },
     "16": {
-      "tablename": "",
-      "filterindices": null,
+      "tablename": "swissnames3d_labels_points",
+      "filterindices": [10],
       "operatorfilter": null
     },
     "17": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "18": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "19": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "20": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "21": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "22": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     },
     "23": {
-      "tablename": "",
+      "tablename": "swissnames3d_labels_points",
       "filterindices": null,
       "operatorfilter": null
     }
