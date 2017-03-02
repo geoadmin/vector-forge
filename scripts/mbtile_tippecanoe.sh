@@ -5,7 +5,6 @@ set -e
 INFILE=
 MIN_ZOOM=0
 MAX_ZOOM=22
-CONFIG=
 FORCE=false
 SKIPMODIFY=false
 
@@ -20,7 +19,7 @@ function usage {
   echo "-f --force"
   echo "-s --skipmodify"
   echo "Usage examples:"
-  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=7 --maxzoom=22"
+  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=7 --maxzoom=22 -f"
   echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --config=configs/ch.swisstopo.swissnames3d_point.json --minzoom=7 --maxzoom=22"
 }
 
@@ -42,7 +41,7 @@ function prepare_tippecanoe {
     echo "Preparing geojson..."
     if [ -z "$CONFIG" ]; then
       MODIFYGEOJSON_CMD="node --harmony scripts/geojson-modifier.js --infile $INFILE \
-                        --outfile "${INFILE_NAME_MODIFIED}.json" --tippecanoe_extensions '[{ "maxzoom": "'${MAX_ZOOM}'", "minzoom": "'${MIN_ZOOM}'"}]'"
+                        --outfile "${INFILE_NAME_MODIFIED}.json" --tippecanoe_extensions '[{\"maxzoom\": \"maxzoom\", \"minzoom\": \"minzoom\"}]'"
       echo $MODIFYGEOJSON_CMD
       eval $MODIFYGEOJSON_CMD
     else
@@ -58,7 +57,7 @@ function prepare_tippecanoe {
 
 function process_tippecanoe {
   TIPPECANOE_CMD="./tippecanoe -o "${INFILE_NAME}.mbtiles" \
-                 --drop-rate=1.28 --simplification=10 --projection='EPSG:3857' \
+                 -rg --projection='EPSG:3857' \
                  "${INFILE_NAME_TIPPECANOE}.json" --minimum-zoom=$MIN_ZOOM --maximum-zoom=$MAX_ZOOM"
   if [ ! -f "${INFILE_NAME_TIPPECANOE}.mbtiles" ] || [ $FORCE = true ]; then
     cd "${HOME}/tippecanoe"
