@@ -1,3 +1,5 @@
+-- ogr2ogr -f "PostgreSQL" PG:"host=pg-0.dev.bgdi.ch dbname=stopo_test_master user=pgkogis" "/home/ltgal/data/swissnames/Labels.json" -nln swissnames3d_labels -append
+
 ALTER TABLE public.swissnames3d_labels RENAME COLUMN wkb_geometry TO the_geom;
 
 
