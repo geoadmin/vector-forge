@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Column, Unicode
+from sqlalchemy import Column, Unicode, Integer
 from geoalchemy2.types import Geometry
 
 from vectorforge.models import init, bases, register, Vector
@@ -31,6 +31,7 @@ class Swissnames3dLabelsMultiPoint(Base, Vector):
     objektart = Column('objektart', Unicode)
     name = Column('name', Unicode)
     layerid = Column('layerid', Unicode)
+    minzoom = Column('minzoom', Integer)
     the_geom = Column(GeomMultiPoint)
 
 register(Swissnames3dLabelsMultiPoint)
@@ -42,9 +43,10 @@ class Swissnames3dLabelsLineString(Base, Vector):
     __bodId__ = 'ch.swisstopo.swissnames3d_labels_lines'
     id = Column('ogc_fid', Unicode, primary_key=True)
     objektart = Column('objektart', Unicode)
-    ame = Column('name', Unicode)
+    name = Column('name', Unicode)
     layerid = Column('layerid', Unicode)
-    the_geom = Column(GeomMultiPoint)
+    minzoom = Column('minzoom', Integer)
+    the_geom = Column(GeomLineString)
 
 
 register(Swissnames3dLabelsLineString)
