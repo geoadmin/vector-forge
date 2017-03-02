@@ -18,7 +18,8 @@ CREATE TABLE public.swissnames3d_labels_points
   fr character varying,
   name character varying,
   layerid character varying,
-  tippecanoe character varying,
+  minzoom character varying,
+  maxzoom character varying,
   de character varying,
   it character varying,
   endonym character varying,
@@ -76,7 +77,8 @@ CREATE TABLE public.swissnames3d_labels_lines
   fr character varying,
   name character varying,
   layerid character varying,
-  tippecanoe character varying,
+  minzoom character varying,
+  maxzoom character varying,
   de character varying,
   it character varying,
   endonym character varying,
@@ -86,7 +88,6 @@ CREATE TABLE public.swissnames3d_labels_lines
   en character varying,
   the_geom_topo topogeometry,
   CONSTRAINT swissnames3d_labels_lines_pkey PRIMARY KEY (ogc_fid),
-  CONSTRAINT check_topogeom_the_geom_topo CHECK ((the_geom_topo).topology_id = 1 AND (the_geom_topo).layer_id = 1 AND (the_geom_topo).type = 2)
 )
 WITH (
   OIDS=FALSE
@@ -124,7 +125,46 @@ CREATE INDEX swissnames3d_labels_lines_geom_idx
   USING gist
   (the_geom);
 
+--- Remove objects for which we don't have a minzoom
+DELETE FROM swissnames3d_labels_points WHERE minzoom = '';
+DELETE FROM swissnames3d_labels_lines WHERE minzoom = '';
+
+-- Change min/maxzoom types
+ALTER TABLE swissnames3d_labels_points
+  ALTER COLUMN minzoom TYPE integer USING round(minzoom::float::integer);
+ALTER TABLE swissnames3d_labels_points
+  ALTER COLUMN maxzoom TYPE integer USING round(maxzoom::float::integer);
+
+ALTER TABLE swissnames3d_labels_lines
+  ALTER COLUMN minzoom TYPE integer USING round(minzoom::float::integer);
+ALTER TABLE swissnames3d_labels_lines
+  ALTER COLUMN maxzoom TYPE integer USING round(maxzoom::float::integer);
+
 INSERT INTO swissnames3d_labels_points SELECT * FROM swissnames3d_labels WHERE ST_GeometryType(the_geom) = 'ST_MultiPoint';
 INSERT INTO swissnames3d_labels_lines SELECT * FROM swissnames3d_labels WHERE ST_GeometryType(the_geom) = 'ST_LineString';
+
+-- Create indices
+
+CREATE INDEX minzoom_points_idx
+  ON public.swissnames3d_labels_points
+  USING btree
+  (minzoom);
+
+CREATE INDEX maxzoom_points_idx
+  ON public.swissnames3d_labels_points
+  USING btree
+  (maxzoom);
+
+CREATE INDEX minzoom_lines_idx
+  ON public.swissnames3d_labels_lines
+  USING btree
+  (minzoom);
+
+CREATE INDEX maxzoom_lines_idx
+  ON public.swissnames3d_labels_lines
+  USING btree
+  (maxzoom);
+
+-- Prepare topology
 SELECT topology.CreateTopology('topology_swissnames3_labels_lines', 3857);
 SELECT topology.AddTopoGeometryColumn('topology_swissnames3_labels_lines', 'public', 'swissnames3d_labels_lines', 'the_geom_topo', 'LINE');
