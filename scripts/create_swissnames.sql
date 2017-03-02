@@ -34,6 +34,9 @@ WITH (
 );
 ALTER TABLE public.swissnames3d_labels_points
   OWNER TO pgkogis;
+GRANT ALL ON TABLE public.swissnames3d_labels_points TO pgkogis;
+GRANT SELECT ON TABLE public.swissnames3d_labels_points TO "www-data";
+GRANT ALL ON TABLE public.swissnames3d_labels_points TO postgres;
 
 -- Index: public.name_points_idx
 
