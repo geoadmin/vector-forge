@@ -1,0 +1,115 @@
+{
+  "layerBodId": "ch.swisstopo.swissnames3d_labels_lines",
+  "tileSizePx": 512,
+  "srid": 3857,
+  "extent": [572280.03, 5684599.67, 1277841.35, 6145546.44],
+  "minZoom": 6,
+  "maxZoom": 18,
+  "gutter": 20,
+  "isAnnotationLayer": false,
+  "filters": [
+    "minzoom <= 6",
+    "minzoom <= 7",
+    "minzoom <= 8",
+    "minzoom <= 9",
+    "minzoom <= 10",
+    "minzoom <= 11",
+    "minzoom <= 12",
+    "minzoom <= 13",
+    "minzoom <= 14",
+    "minzoom <= 15",
+    "minzoom <= 16"
+  ],
+  "lods": {
+    "6": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "7": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [1],
+      "operatorfilter": null
+    },
+    "8": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [2],
+      "operatorfilter": null
+    },
+    "9": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [3],
+      "operatorfilter": null
+    },
+    "10": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [4],
+      "operatorfilter": null
+    },
+    "11": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [5],
+      "operatorfilter": null
+    },
+    "12": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [6],
+      "operatorfilter": null
+    },
+    "13": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [7],
+      "operatorfilter": null
+    },
+    "14": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [8],
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [9],
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": [10],
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "swissnames3d_labels_lines",
+      "filterindices": null,
+      "operatorfilter": null
+    }
+  }
+}
