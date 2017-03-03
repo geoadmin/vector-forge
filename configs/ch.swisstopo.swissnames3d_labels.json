@@ -8,17 +8,17 @@
   "gutter": 20,
   "isAnnotationLayer": false,
   "filters": [
-    "minzoom >= 6",
-    "minzoom >= 7",
-    "minzoom >= 8",
-    "minzoom >= 9",
-    "minzoom >= 10",
-    "minzoom >= 11",
-    "minzoom >= 12",
-    "minzoom >= 13",
-    "minzoom >= 14",
-    "minzoom >= 15",
-    "minzoom >= 16"
+    "minzoom <= 6",
+    "minzoom <= 7",
+    "minzoom <= 8",
+    "minzoom <= 9",
+    "minzoom <= 10",
+    "minzoom <= 11",
+    "minzoom <= 12",
+    "minzoom <= 13",
+    "minzoom <= 14",
+    "minzoom <= 15",
+    "minzoom <= 16"
   ],
   "lods": {
     "6": {
