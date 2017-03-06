@@ -27,7 +27,7 @@ class Swissnames3dLabelsPoint(Base, Vector):
     __tablename__ = 'swissnames3d_labels_points'
     __table_args__ = ({'autoload': False})
     __bodId__ = 'ch.swisstopo.swissnames3d_labels_points'
-    id = Column('ogc_fid', Unicode, primary_key=True)
+    uuid = Column('uuid', Unicode, primary_key=True)
     objektart = Column('objektart', Unicode)
     name = Column('name', Unicode)
     layerid = Column('layerid', Unicode)
@@ -41,7 +41,7 @@ class Swissnames3dLabelsLineString(Base, Vector):
     __tablename__ = 'swissnames3d_labels_lines'
     __table_args__ = ({'autoload': False})
     __bodId__ = 'ch.swisstopo.swissnames3d_labels_lines'
-    id = Column('ogc_fid', Unicode, primary_key=True)
+    uuid = Column('uuid', Unicode, primary_key=True)
     objektart = Column('objektart', Unicode)
     name = Column('name', Unicode)
     layerid = Column('layerid', Unicode)
