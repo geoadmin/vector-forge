@@ -171,3 +171,6 @@ CREATE INDEX maxzoom_lines_idx
 -- Prepare topology
 SELECT topology.CreateTopology('topology_swissnames3_labels_lines', 3857);
 SELECT topology.AddTopoGeometryColumn('topology_swissnames3_labels_lines', 'public', 'swissnames3d_labels_lines', 'the_geom_topo', 'LINE');
+
+-- Multi to simple geom
+ALTER TABLE swissnames3d_labels_points ALTER COLUMN the_geom TYPE geometry(Point, 3857) USING ST_GeometryN(the_geom, 1);
