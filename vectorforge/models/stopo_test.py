@@ -10,8 +10,8 @@ if bases.get('stopo_test') is None:
     init()
 Base = bases.get('stopo_test')
 
-GeomMultiPoint = Geometry(
-    geometry_type='MultiPoint',
+GeomPoint = Geometry(
+    geometry_type='Point',
     dimension=3,
     srid=3857)
 
@@ -23,7 +23,7 @@ GeomLineString = Geometry(
 # Multi Points
 
 
-class Swissnames3dLabelsMultiPoint(Base, Vector):
+class Swissnames3dLabelsPoint(Base, Vector):
     __tablename__ = 'swissnames3d_labels_points'
     __table_args__ = ({'autoload': False})
     __bodId__ = 'ch.swisstopo.swissnames3d_labels_points'
@@ -32,9 +32,9 @@ class Swissnames3dLabelsMultiPoint(Base, Vector):
     name = Column('name', Unicode)
     layerid = Column('layerid', Unicode)
     minzoom = Column('minzoom', Integer)
-    the_geom = Column(GeomMultiPoint)
+    the_geom = Column(GeomPoint)
 
-register(Swissnames3dLabelsMultiPoint)
+register(Swissnames3dLabelsPoint)
 
 
 class Swissnames3dLabelsLineString(Base, Vector):
