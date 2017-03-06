@@ -70,8 +70,8 @@ def estimateLetterSizePx(maxFontSizePx):
     fontType = "LiberationSans-Regular.ttf"
     fontPath = os.path.join(fontDir, fontType)
     if not os.path.exists(fontPath):
-        print 'Font file not found, please install fonts-liberation'
-        sys.exit(1)
+        print 'Using default dimensions for letter size'
+        return (11, 21)
     refText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     textSize = ImageFont.truetype(fontPath, maxFontSizePx).getsize(refText)
     letterSize = (textSize[0] / len(refText), textSize[1])
@@ -163,7 +163,7 @@ def createTile(tileSpec):
     def annotationShape():
         query = DBSession.query(model)
         query = query.filter(model.bboxIntersectsAnnotation(
-            bounds, letterSizeMeters))
+            bounds, letterSizeMeters, srid=srid))
         query = applyQueryFilters(query, filterIndices, operatorFilter)
         for feature in query:
             properties = feature.getProperties(includePkey=True)

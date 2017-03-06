@@ -5,8 +5,9 @@
   "extent": [572280.03, 5684599.67, 1277841.35, 6145546.44],
   "minZoom": 6,
   "maxZoom": 18,
-  "gutter": 20,
-  "isAnnotationLayer": false,
+  "isAnnotationLayer": true,
+  "maxFontSize": 19,
+  "gutter": 5,
   "filters": [
     "minzoom <= 6",
     "minzoom <= 7",
