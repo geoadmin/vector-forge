@@ -45,6 +45,7 @@ install:
 		virtualenv $(VENV); \
 		$(PIP_CMD) install --upgrade pip setuptools; \
 	fi; \
+	$(PIP_CMD) install https://github.com/tilezen/mapbox-vector-tile/archive/v1.2.0.tar.gz
 	$(PIP_CMD) install -e .
 	npm install
 
