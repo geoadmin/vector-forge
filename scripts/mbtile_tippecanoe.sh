@@ -19,8 +19,8 @@ function usage {
   echo "-f --force"
   echo "-s --skipmodify"
   echo "Usage examples:"
-  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=7 --maxzoom=22 -f"
-  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --config=configs/ch.swisstopo.swissnames3d_point.json --minzoom=7 --maxzoom=22"
+  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --minzoom=6 --maxzoom=18 -f"
+  echo "./scripts/mbtile_tippecanoe.sh --source=~/data/swissnames/Labels.json --config=configs/ch.swisstopo.swissnames3d_point.json --minzoom=6 --maxzoom=18 -f"
 }
 
 function setup_tippecanoe {
@@ -57,7 +57,7 @@ function prepare_tippecanoe {
 
 function process_tippecanoe {
   TIPPECANOE_CMD="./tippecanoe -o "${INFILE_NAME}.mbtiles" \
-                 -rg --projection='EPSG:3857' \
+                 -rg --projection='EPSG:3857' --preserve-input-order -n ${INFILE_NAME} \
                  "${INFILE_NAME_TIPPECANOE}.json" --minimum-zoom=$MIN_ZOOM --maximum-zoom=$MAX_ZOOM"
   if [ ! -f "${INFILE_NAME_TIPPECANOE}.mbtiles" ] || [ $FORCE = true ]; then
     cd "${HOME}/tippecanoe"
