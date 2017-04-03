@@ -57,7 +57,7 @@ function prepare_tippecanoe {
 
 function process_tippecanoe {
   TIPPECANOE_CMD="./tippecanoe -o "${INFILE_NAME}.mbtiles" \
-                 -rg --projection='EPSG:3857' --preserve-input-order -n swissnames -x minzoom -x maxzoom \
+                 -rg --projection='EPSG:3857' --preserve-input-order -l swissnames -n ${INFILE_NAME} -x minzoom -x maxzoom \
                  "${INFILE_NAME_TIPPECANOE}.json" --minimum-zoom=$MIN_ZOOM --maximum-zoom=$MAX_ZOOM"
   if [ ! -f "${INFILE_NAME_TIPPECANOE}.mbtiles" ] || [ $FORCE = true ]; then
     cd "${HOME}/tippecanoe"
