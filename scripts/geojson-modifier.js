@@ -177,6 +177,10 @@ var modifyGeoJSON = function(data) {
   } else if (config) {
     ext = createTippecanoeExtensionFromConfig(data, config);
   }
+  // Make sure layerid is a string
+  if (data.properties.layerid != undefined) {
+    data.properties.layerid = data.properties.layerid.toString();
+  }
   // Adds a tippecanoe extension.
   data.tippecanoe = ext;
   return data;
