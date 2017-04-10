@@ -181,6 +181,18 @@ var modifyGeoJSON = function(data) {
   if (data.properties.layerid != undefined) {
     data.properties.layerid = data.properties.layerid.toString();
   }
+  if (data.properties.de == '') {
+    data.properties.de = data.properties.name;
+  }
+  if (data.properties.fr == '') {
+    data.properties.fr = data.properties.name;
+  }
+  if (data.properties.it == '') {
+    data.properties.it = data.properties.name;
+  }
+  if (data.properties.roh == '') {
+    data.properties.roh = data.properties.name;
+  }
   // Adds a tippecanoe extension.
   data.tippecanoe = ext;
   return data;
