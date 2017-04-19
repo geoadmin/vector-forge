@@ -20,10 +20,12 @@ psycopg2==2.5.4
 pyflakes==1.5.0
 pyramid==1.8.1
 pyramid-mako==1.0.2
+pyproj
 quantized-mesh-tile
 regex==2017.1.17
 repoze.lru==0.6
 Shapely==1.3.3
+simplekml
 six==1.10.0
 SQLAlchemy==0.9.8
 tool_aws
