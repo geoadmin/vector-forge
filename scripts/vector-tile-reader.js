@@ -9,6 +9,7 @@
 var commandLineArgs = require('command-line-args'),
     commandLineUsage = require('command-line-usage'),
     fs = require('fs'),
+    Protobuf = require('pbf'),
     VectorTile = require('vector-tile').VectorTile,
     VectorTileLayer = require('vector-tile').VectorTileLayer,
     VectorTileFeature = require('vector-tile').VectorTileFeature,

@@ -12,6 +12,7 @@
 var commandLineArgs = require('command-line-args'),
     commandLineUsage = require('command-line-usage'),
     es = require('event-stream'),
+    exec = require('child_process').exec,
     JSONStream = require('JSONStream'),
     userHome = require('user-home'),
     fs = require('fs');
@@ -100,12 +101,12 @@ if (options.patterns) {
 }
 var extension;
 if (options.tippecanoe_extensions) {
-  var extension = JSON.parse(options.tippecanoe_extensions)[0];
+  extension = JSON.parse(options.tippecanoe_extensions)[0];
   console.log('Extension:\t' + JSON.stringify(extension));
 }
 
 // Parse GeoJSON with JSONPath features.*.geometry
-var numFeatures = 0, numModifiedFeatures = 0;
+var numTotalFeatures = 0, numProcessedFeatures = 0, numModifiedFeatures = 0;
 var readStream = fs.createReadStream(tildePath(options.infile), {encoding: 'utf8'});
 var readJSONStream = JSONStream.parse('features.*');
 
@@ -158,6 +159,7 @@ var createTippecanoeExtensionFromConfig = function(data, config) {
 
 // Modifies the GeoJSON feature.
 var modifyGeoJSON = function(data) {
+  ++numProcessedFeatures;
   if (!extension && !config) {
     // Nothing to change.
     return data;
@@ -199,6 +201,14 @@ var modifyGeoJSON = function(data) {
 }
 
 var readAndWriteGeoJSON = function() {
+  // Total number of features.
+
+  exec('grep \'"type":"Feature"\' ' + tildePath(options.infile) + '| wc -l',
+       function (error, results) {
+           console.log("Number of input features: " + results);
+           numTotalFeatures = parseInt(results);
+  });
+
   // Emits anything from _before_ the first match
   readJSONStream.on('header', function (data) {
     if (data != undefined) {
@@ -210,11 +220,14 @@ var readAndWriteGeoJSON = function() {
 
   // Emits the (potentially modified) feature.
   readJSONStream.on('data', function(data) {
-    if (++numFeatures % 1000 == 0) {
-        process.stdout.write('Modified ' + numModifiedFeatures / 1000 + 'k of '
-            + numFeatures / 1000 + 'k features\r');
-    }
     this.write(modifyGeoJSON(data));
+    var ratioProcessed =
+        Math.round(100.0 * numProcessedFeatures / numTotalFeatures);
+    if (numProcessedFeatures == numTotalFeatures) {
+      process.stdout.write('Processed ' + ratioProcessed + '%');
+    } else if (ratioProcessed % 5 == 0) {
+      process.stdout.write('Processed ' + ratioProcessed + '%\r');
+    }
   });
 
   // Emits anything from _after_ the last match
@@ -224,7 +237,11 @@ var readAndWriteGeoJSON = function() {
       console.log('Footer:\n' + JSON.stringify(data));
     }
 
-    console.log('\nResults written to \'' + tildePath(options.outfile) + '\'.');
+    console.log(' and modified ' +
+                Math.round(100.0 * numModifiedFeatures / numTotalFeatures) +
+                '% of all input features');
+    console.log('\nWrote ' + numProcessedFeatures + ' features to \'' +
+                tildePath(options.outfile) + '\'.');
   });
 
   var writeStream = fs.createWriteStream(tildePath(options.outfile));
