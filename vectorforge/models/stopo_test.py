@@ -15,10 +15,33 @@ GeomPoint = Geometry(
     dimension=3,
     srid=3857)
 
+GeomPointCH = Geometry(
+    geometry_type='Point',
+    dimension=3,
+    srid=21781)
+
 GeomLineString = Geometry(
     geometry_type='LineString',
     dimension=3,
     srid=3857)
+
+class MaplexLabels(Base, Vector):
+    __tablename__ = 'maplex_labels_points'
+    __table_args__ = ({'autoload': False})
+    __bodId__ = 'swissnames'
+    uuid = Column('uuid', Unicode, primary_key=True)
+    objektart = Column('objektart', Unicode)
+    name = Column('name', Unicode)
+    layerid = Column('layerid', Unicode)
+    minzoom = Column('minzoom', Integer)
+    de = Column('de', Unicode)
+    fr = Column('fr', Unicode)
+    roh = Column('roh', Unicode)
+    it = Column('it', Unicode)
+    en = Column('en', Unicode)
+    the_geom = Column(GeomPointCH)
+
+register(MaplexLabels)
 
 # Multi Points
 

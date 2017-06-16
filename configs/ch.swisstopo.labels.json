@@ -1,0 +1,116 @@
+{
+  "layerBodId": "swissnames",
+  "tileSizePx": 512,
+  "srid": 21781,
+  "extent": null,
+  "minZoom": 6,
+  "maxZoom": 18,
+  "isAnnotationLayer": false,
+  "maxFontSize": null,
+  "gutter": 200,
+  "filters": [
+    "minzoom <= 6",
+    "minzoom <= 7",
+    "minzoom <= 8",
+    "minzoom <= 9",
+    "minzoom <= 10",
+    "minzoom <= 11",
+    "minzoom <= 12",
+    "minzoom <= 13",
+    "minzoom <= 14",
+    "minzoom <= 15",
+    "minzoom <= 16"
+  ],
+  "lods": {
+    "6": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [0],
+      "operatorfilter": null
+    },
+    "7": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [1],
+      "operatorfilter": null
+    },
+    "8": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [2],
+      "operatorfilter": null
+    },
+    "9": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [3],
+      "operatorfilter": null
+    },
+    "10": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [4],
+      "operatorfilter": null
+    },
+    "11": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [5],
+      "operatorfilter": null
+    },
+    "12": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [6],
+      "operatorfilter": null
+    },
+    "13": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [7],
+      "operatorfilter": null
+    },
+    "14": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [8],
+      "operatorfilter": null
+    },
+    "15": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [9],
+      "operatorfilter": null
+    },
+    "16": {
+      "tablename": "maplex_labels_points",
+      "filterindices": [10],
+      "operatorfilter": null
+    },
+    "17": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "18": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "19": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "20": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "21": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "22": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    },
+    "23": {
+      "tablename": "maplex_labels_points",
+      "filterindices": null,
+      "operatorfilter": null
+    }
+  }
+}
