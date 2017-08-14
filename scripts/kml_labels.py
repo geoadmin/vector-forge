@@ -2,6 +2,7 @@ import os
 import json
 import sys
 import simplekml
+import getopt
 from simplekml import AltitudeMode
 from pyproj import Proj, transform
 
@@ -58,7 +59,55 @@ def escape_chars(txt):
 
 
 def main():
-    save_folder = '/home/ltgal/data/swissnames/'
+    save_folder = '' 
+# /home/ltteo/output/swissnames/20170814'
+    file_path = ''
+    types = []
+    debug = False
+    help_msg =  """
+kml_labels.py -i <inputfile> -o <outputfolder>'
+Options: 
+    -i <file path> : Mandatory. Path to a geojson file containing data in swiss coordinates
+    -o <output folder path> : Mandatory. Path to a folder where the KMLs will be saved
+    -t <object types> : Optional. List of type of objects to export. Ex: 'Ort,Alpiner gipfel,See'
+    -d : Optional. Display debug info about skipped features
+"""
+    try: 
+        opts, args = getopt.getopt(sys.argv[1:],"i:o:t:d") 
+    except getopt.GetoptError:
+        print help_msg
+        sys.exit()
+    for opt, arg in opts:
+        if opt == '-h':
+            print help_msg
+            sys.exit()
+        elif opt in ("-i"):
+            file_path = arg
+        elif opt in ("-o"):
+            save_folder = arg
+        elif opt in ("-t"):
+            try:
+                types = arg.split(',')
+            except:
+                print 'Bad types parameter' % arg
+                print help_msg
+                sys.exit()
+        elif opt in ("-d"):
+            debug = True
+    
+
+    
+    if not file_path:
+        print('Input file %s does not exist' % file_path)
+        print help_msg
+        sys.exit()
+
+    if not save_folder:
+        print('Output folder %s does not exist' % save_folder)
+        print help_msg
+        sys.exit()
+
+
     min_zoom = min(ZOOM_MAPPING.keys())
     max_zoom = max(ZOOM_MAPPING.keys())
 
@@ -66,14 +115,6 @@ def main():
 
     min_lod = zoom_to_lod(min_zoom, min_zoom_map, min(ZOOM_MAPPING.values()))
     max_lod = zoom_to_lod(min_zoom, min_zoom_map, max(ZOOM_MAPPING.values()))
-
-    if len(sys.argv) != 2:
-        print('Please provide a geojson file path')
-        sys.exit(1)
-
-    file_path = sys.argv[1]
-    if not file_path:
-        print('File %s does not exist' % file_path)
 
     with open(file_path, 'r') as f:
         content = json.load(f)
@@ -99,6 +140,7 @@ def main():
         fol = doc.newfolder()
         fol._id = 'kml_ft_%s%s' %(FILE_PREFIX, lod)
         kml = create_schema(kml, lod)
+        nbSkipped = 0
         if lod in features_ids_for_zoom:
             for feature_id in list(features_ids_for_zoom[lod]):
                 feature = features_cache[feature_id]
@@ -109,8 +151,15 @@ def main():
                 layerid = float(feature['properties']['layerid'])
                 objektart = feature['properties']['objektart']
                 hoehe = float(feature['properties']['hoehe'])
-                if type(name) == unicode and type(uuid) == unicode and valid_coords(coordinates) and \
+                skip = True if not len(types) == 0 else False
+                for typee in types:
+                    if objektart == typee:
+                        skip = False
+                        break 
+                                         
+                if not skip and type(name) == unicode and type(uuid) == unicode and valid_coords(coordinates) and \
                     type(layerid) == float and type(objektart) == unicode and type(hoehe) == float:
+                        
                     pt = fol.newpoint(
                         name=name,
                         coords=[coordinates],
@@ -125,10 +174,12 @@ def main():
                     pt.extendeddata.schemadata.newsimpledata('OBJEKTART', objektart)
                     pt.extendeddata.schemadata.newsimpledata('HOEHE', hoehe)
                 else:
-                    print('Skipping uuid %s, name %s, layerid %s, objektart %s, hoehe %s' % (uuid, name, layerid, objektart, hoehe))
-                    print(coordinates)
+                    nbSkipped += 1
+                    if debug:
+                        print('Skipping uuid %s, name %s, layerid %s, objektart %s, hoehe %s' % (uuid, name, layerid, objektart, hoehe))
+                        print(coordinates)
             kml_file = os.path.join(save_folder, '%s%s.kml' % (FILE_PREFIX, lod))
-            print('%s features belong to LOD %s' % (len(list(features_ids_for_zoom[lod])), lod))
+            print('%s features belong to LOD %s' % (len(list(features_ids_for_zoom[lod])) - nbSkipped, lod))
             print('Saving kml to %s...' % kml_file)
             try:
                 kml.save(kml_file)
