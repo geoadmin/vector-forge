@@ -60,7 +60,6 @@ def escape_chars(txt):
 
 def main():
     save_folder = '' 
-# /home/ltteo/output/swissnames/20170814'
     file_path = ''
     types = []
     debug = False
@@ -69,7 +68,7 @@ kml_labels.py -i <inputfile> -o <outputfolder>'
 Options: 
     -i <file path> : Mandatory. Path to a geojson file containing data in swiss coordinates
     -o <output folder path> : Mandatory. Path to a folder where the KMLs will be saved
-    -t <object types> : Optional. List of type of objects to export. Ex: 'Ort,Alpiner gipfel,See'
+    -t <object types> : Optional. List of type of objects to export. Ex: "Ort,Alpiner gipfel,See"
     -d : Optional. Display debug info about skipped features
 """
     try: 
@@ -78,21 +77,22 @@ Options:
         print help_msg
         sys.exit()
     for opt, arg in opts:
+        print opt
         if opt == '-h':
             print help_msg
             sys.exit()
-        elif opt in ("-i"):
+        elif opt == "-i":
             file_path = arg
-        elif opt in ("-o"):
+        elif opt == "-o":
             save_folder = arg
-        elif opt in ("-t"):
+        elif opt == "-t":
             try:
                 types = arg.split(',')
             except:
                 print 'Bad types parameter' % arg
                 print help_msg
                 sys.exit()
-        elif opt in ("-d"):
+        elif opt == "-d":
             debug = True
     
 
