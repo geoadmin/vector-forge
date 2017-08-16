@@ -3,6 +3,7 @@ import json
 import sys
 import simplekml
 import getopt
+import textwrap
 from simplekml import AltitudeMode
 from pyproj import Proj, transform
 
@@ -63,21 +64,20 @@ def main():
     file_path = ''
     types = []
     debug = False
-    help_msg =  """
-kml_labels.py -i <inputfile> -o <outputfolder>'
-Options: 
-    -i <file path> : Mandatory. Path to a geojson file containing data in swiss coordinates
-    -o <output folder path> : Mandatory. Path to a folder where the KMLs will be saved
-    -t <object types> : Optional. List of type of objects to export. Ex: "Ort,Alpiner gipfel,See"
-    -d : Optional. Display debug info about skipped features
-"""
+    help_msg = textwrap.dedent("""
+        kml_labels.py -i <inputfile> -o <outputfolder>'
+        Options: 
+            -i <file path> : Mandatory. Path to a geojson file containing data in swiss coordinates
+            -o <output folder path> : Mandatory. Path to a folder where the KMLs will be saved
+            -t <object types> : Optional. List of type of objects to export. Ex: "Ort,Alpiner gipfel,See"
+            -d : Optional. Display debug info about skipped features
+    """)
     try: 
         opts, args = getopt.getopt(sys.argv[1:],"i:o:t:d") 
     except getopt.GetoptError:
         print help_msg
         sys.exit()
     for opt, arg in opts:
-        print opt
         if opt == '-h':
             print help_msg
             sys.exit()
@@ -151,15 +151,9 @@ Options:
                 layerid = float(feature['properties']['layerid'])
                 objektart = feature['properties']['objektart']
                 hoehe = float(feature['properties']['hoehe'])
-                skip = True if not len(types) == 0 else False
-                for typee in types:
-                    if objektart == typee:
-                        skip = False
-                        break 
-                                         
-                if not skip and type(name) == unicode and type(uuid) == unicode and valid_coords(coordinates) and \
-                    type(layerid) == float and type(objektart) == unicode and type(hoehe) == float:
-                        
+                skip = False if len(types) == 0 else not (objektart in types)
+                if not skip and valid_coords(coordinates) and all([isinstance(name, unicode), isinstance(objektart, unicode),
+                    isinstance(uuid, unicode), isinstance(layerid, float), isinstance(hoehe, float)]):
                     pt = fol.newpoint(
                         name=name,
                         coords=[coordinates],
