@@ -22,6 +22,8 @@ const optionDefinitions = [
   { name: 'patterns', alias: 'p', type: String },
   { name: 'tippecanoe_extensions', alias: 't', type: String },
   { name: 'config', alias: 'c', type: String },
+  { name: 'maxzoom_limit', type: Number, defaultValue: 6 },
+  { name: 'minzoom_limit', type: Number, defaultValue: 16 },
   { name: 'help', alias: 'h', type: Boolean },
   { name: 'infile', type: String },
   { name: 'outfile', type: String, defaultValue: 'modified.geojson' },
@@ -61,6 +63,14 @@ const sections = [
                      '\nExample 2: \'[{ "maxzoom": "MaxZoom", "minzoom": ' +
                      '"MinZoom" }]\'. The actual value is taken from an ' +
                      'attribute of the feature, e.g. MaxZoom and MinZoom.'
+      },
+      {
+        name: 'maxzoom_limit',
+        description: 'Force maxzoom values to be bigger or equal this limit.'
+      },
+      {
+        name: 'minzoom_limit',
+        description: 'Force minzoom values to be smaller or equal this limit.'
       },
       {
         name: 'infile',
@@ -104,6 +114,10 @@ if (options.tippecanoe_extensions) {
   extension = JSON.parse(options.tippecanoe_extensions)[0];
   console.log('Extension:\t' + JSON.stringify(extension));
 }
+if (options.minzoom_limit < options.maxzoom_limit) {
+  console.log('Error: Value of --minzoom_limit smaller than --maxzoom_limit.');
+  return;
+}
 
 // Parse GeoJSON with JSONPath features.*.geometry
 var numTotalFeatures = 0, numProcessedFeatures = 0, numModifiedFeatures = 0;
@@ -112,14 +126,27 @@ var readJSONStream = JSONStream.parse('features.*');
 
 var createTippecanoeExtensionFromGlobals = function(data) {
   var featureExtension = {};
+  var zoom = 0;
   for (key in extension) {
     switch(key) {
       case 'minzoom':
+        if (parseInt(data.properties[extension[key]]) > 0) {
+          zoom = parseInt(data.properties[extension[key]]);
+        } else if (parseInt(extension[key]) > 0) {
+          zoom = parseInt(extension[key]);
+        }
+        if (zoom > 0) {
+          featureExtension[key] = zoom > options.minzoom_limit ? options.minzoom_limit : zoom;
+        }
+        break;
       case 'maxzoom':
         if (parseInt(data.properties[extension[key]]) > 0) {
-          featureExtension[key] = parseInt(data.properties[extension[key]]);
+          zoom = parseInt(data.properties[extension[key]]);
         } else if (parseInt(extension[key]) > 0) {
-          featureExtension[key] = parseInt(extension[key]);
+          zoom = parseInt(extension[key]);
+        }
+        if (zoom > 0) {
+          featureExtension[key] = zoom < options.maxzoom_limit ? options.maxzoom_limit : zoom;
         }
         break;
       case 'layer':
