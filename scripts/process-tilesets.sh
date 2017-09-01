@@ -2,6 +2,9 @@
 #
 # Merges GeoJSON files and produces a composite MBTile.
 
+
+let MAXZOOM=15
+let MINZOOM=6
 INPUT_LIST=""
 OUTPUT_PATH='.'
 FILEPATTERN='composite'
@@ -10,6 +13,8 @@ function usage {
   echo "Usage:"
   echo
   echo "-h --help"
+  echo -e "--maxzoom \t Maximum zoom level to generate tiles [default:15]"
+  echo -e "--minzoom \t Minimum zoom level to generate tiles [default:6]"
   echo -e "--inputs \t List of input files [default:\"${INPUT_LIST}\"]"
   echo -e "--outputpath \t Directory for output files [default: ${OUTPUT_PATH}]"
   echo -e "--filepattern \t File pattern for output files [default: ${FILEPATTERN}]"
@@ -30,6 +35,12 @@ while [ "${1}" != "" ]; do
             usage
             exit
             ;;
+        --maxzoom)
+            let MAXZOOM=${VALUE}
+            ;;
+        --minzoom)
+            let MINZOOM=${VALUE}
+            ;;
         --inputs)
             INPUT_LIST="${VALUE}"
             ;;
@@ -48,6 +59,9 @@ while [ "${1}" != "" ]; do
     shift
 done
 
+# Reset timer.
+SECONDS=0
+
 if [[ -z "${INPUT_LIST}" ]]
 then
   usage
@@ -55,6 +69,13 @@ then
 else
   echo
   echo Inputs: ${INPUT_LIST}
+  for geojson in ${INPUT_LIST}
+  do
+    if [ ! -f ${geojson} ]; then
+      echo "ERROR: File not found: ${geojson}"
+      exit
+    fi
+  done
 fi
 
 OUTPUT=${OUTPUT_PATH}/${FILEPATTERN}
@@ -93,19 +114,26 @@ let n=$(< ${OUTPUT_JSON} wc -l)-4
 echo Number of features in composite: ${n}
 
 echo Adding tippecanoe extension...
-node ../../vector-forge/scripts/geojson-modifier.js \
+set -o xtrace
+node ${HOME}/vector-forge/scripts/geojson-modifier.js \
     --infile ${OUTPUT_JSON} \
     --tippecanoe_extensions '[{ "maxzoom": "maxzoom", "minzoom": "minzoom"}]' \
+    --maxzoom_limit ${MINZOOM} \
+    --minzoom_limit ${MAXZOOM} \
     --outfile ${OUTPUT_MODIFIED}
 
-echo Creating tiles...
-../../tippecanoe/tippecanoe -f \
+${HOME}/tippecanoe/tippecanoe -f \
     --output ${OUTPUT_MBTILE} \
     --exclude=minzoom --exclude=maxzoom \
     --attribute-type=stufe:int \
-    --maximum-zoom=16 --minimum-zoom=6 \
+    --maximum-zoom=${MAXZOOM} \
+    --minimum-zoom=${MINZOOM} \
     --projection EPSG:3857 \
     -n ${FILEPATTERN} -l ${FILEPATTERN}-layer \
     --description='Composite Tileset' \
     ${OUTPUT_MODIFIED}
+set +o xtrace
 
+duration=$SECONDS
+echo
+echo "Elapsed time: $(($duration / 60)) minutes and $(($duration % 60)) seconds."
