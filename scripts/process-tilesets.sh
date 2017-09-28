@@ -124,7 +124,7 @@ node ${HOME}/vector-forge/scripts/geojson-modifier.js \
 
 ${HOME}/tippecanoe/tippecanoe -f \
     --output ${OUTPUT_MBTILE} \
-    --exclude=minzoom --exclude=maxzoom \
+    --exclude=minzoom --exclude=maxzoom --exclude=labelgeometry \
     --attribute-type=stufe:int \
     --maximum-zoom=${MAXZOOM} \
     --minimum-zoom=${MINZOOM} \
