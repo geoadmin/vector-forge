@@ -126,6 +126,7 @@ ${HOME}/tippecanoe/tippecanoe -f \
     --output ${OUTPUT_MBTILE} \
     --exclude=minzoom --exclude=maxzoom --exclude=labelgeometry \
     --attribute-type=stufe:int \
+    --preserve-input-order \
     --maximum-zoom=${MAXZOOM} \
     --minimum-zoom=${MINZOOM} \
     --projection EPSG:3857 \
